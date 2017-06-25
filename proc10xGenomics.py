@@ -428,6 +428,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
     # Set up the global variables
     global read_count
     global stime
+    global file_path
 
     barcode_match = 0
     barcode_1mismatch = 0
@@ -444,7 +445,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
     iterator = TwoReadIlluminaRun(read1, read2, bctrim, trim, profile, verbose)
 
     # Load the gem barcode dictionary with the whitelist
-    with open('barcodes/4M-with-alts-february-2016.txt', 'r') as f:
+    with open(os.path.join(file_path, 'barcodes/4M-with-alts-february-2016.txt'), 'r') as f:
         for bc_sequence in f:
             gbcDict[seqToHash(bc_sequence.strip())] = bc_sequence.strip()
 
@@ -482,15 +483,15 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
 
     except StopIteration:
         with open(output_dir + '_barcodes.txt', 'w') as f:
-            [f.write('{0}:{1}\n'.format(gbcDict[key], value)) for key, value in gbcCounter.items()]
+            [f.write('{0}\t{1}\n'.format(gbcDict[key], value)) for key, value in gbcCounter.items()]
         output.close()
 
         if verbose:
+            sys.stderr.write("READS\treads analyzed: %i | reads/sec: %i | barcodes: %i | reads/barcode: %f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
             sys.stderr.write("BARCODE\tmatch: %i\n" % barcode_match)
             sys.stderr.write("BARCODE\tmismatch1: %i\n" % barcode_1mismatch)
             sys.stderr.write("BARCODE\tambiguous: %i\n" % barcode_ambiguous)
             sys.stderr.write("BARCODE\tunknown: %i\n" % barcode_unknown)
-            sys.stderr.write("Finally, reads analyzed: %i | reads/sec: %i | barcodes: %i | reads/barcode: %f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
         pass
 
 
@@ -552,6 +553,8 @@ if infile2 is None:
 infile2 = infile2.split(',')
 
 verbose = options.verbose
+
+file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../')
 
 # need to check, can write to output folder
 
