@@ -554,7 +554,7 @@ infile2 = infile2.split(',')
 
 verbose = options.verbose
 
-file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../')
+file_path = os.path.dirname(os.path.abspath(__file__))
 
 # need to check, can write to output folder
 
