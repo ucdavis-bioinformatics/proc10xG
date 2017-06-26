@@ -59,7 +59,7 @@ def seqToHash(seq):
     result = 0
     i = 0
     while i < len(seq):
-        result += encoding.get(seq[i]) * 4**i
+        result += encoding.get(seq[i], 0) * 4**i
         i += 1
     return result
 
@@ -448,6 +448,8 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
     with open(os.path.join(file_path, 'barcodes/4M-with-alts-february-2016.txt'), 'r') as f:
         for bc_sequence in f:
             gbcDict[seqToHash(bc_sequence.strip())] = bc_sequence.strip()
+        if verbose:
+            sys.stderr("Finished reading in barcode whitelist")
 
     try:
         while 1:
