@@ -497,7 +497,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
 
 #####################################
 # Parse options and setup #
-usage = "usage %prog -o [output file prefix (path + name)] -(pbtg) --quite -1 [read1] -2 [read2] -3 [read3]"
+usage = "usage %prog -o [output file prefix (path + name)] -(pbtg) --quiet -1 [read1] -2 [read2] -3 [read3]"
 usage += "%prog will process read file produced by 10x genomics and do some stuff"
 parser = OptionParser(usage=usage, version="%prog 0.0.1")
 
@@ -528,7 +528,7 @@ parser.add_option('-2', '--read2', metavar="read2", dest='read2', help='read2 of
 parser.add_option('-g', '--nogzip', help="do not gzip the output, ignored if output is stdout",
                   action="store_false", dest="nogzip", default=True)
 
-parser.add_option('--quite', help="turn off verbose output",
+parser.add_option('--quiet', help="turn off verbose output",
                   action="store_false", dest="verbose", default=True)
 
 (options, args) = parser.parse_args()
