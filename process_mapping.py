@@ -8,6 +8,17 @@ import signal
 from subprocess import Popen
 from subprocess import PIPE
 
+
+def seqToHash(seq):
+    encoding = {'a': 0, 'c': 1, 'g': 2, 't': 3, 'A': 0, 'C': 1, 'G': 2, 'T': 3}
+    result = 0
+    i = 0
+    while i < len(seq):
+        result += encoding.get(seq[i]) * 4**i
+        i += 1
+    return result
+
+
 def sp_bwa_index(ref, overwrite=False):
     if os.path.isfile(ref):
         if os.path.isfile(ref + '.sa') and not overwrite:
@@ -78,12 +89,12 @@ def reverse(s):
     return ''.join(letters[::-1])
 
 
-class screeningApp:
+class bcScreening:
 
     def __init__(self):
         self.verbose = False
 
-    def start(self, fastq_file1, fastq_file2, fastq_file3, reference, overwrite, sensitivity, output_prefix, strict, procs, uncompressed=False, verbose=True, debug=False):
+    def start(self):
         """
             screen reads against a reference fasta file
         """
@@ -239,69 +250,59 @@ class screeningApp:
             pass
 
 
-def main(samfile, output_dir, output_all, verbose):
+def main(insam, outsam, output_all, verbose):
+    global file_path
+    gbcDict = {}
+
+    # Load the gem barcode dictionary with the whitelist
+    with open(os.path.join(file_path, 'barcodes/4M-with-alts-february-2016.txt'), 'r') as f:
+        for bc_sequence in f:
+            gbcDict[seqToHash(bc_sequence.strip())] = bc_sequence.strip()
+        if verbose:
+            sys.stderr("Finished reading in barcode whitelist")
+
     line_count = 0
-    for line in samfile:
+    current_bc = None
+    current_bc_count = 0
+    bc_count = 0
+    for line in insam:
         if line_count % 100000 == 0 and line_count > 0 and verbose:
             print "Records processed: %s" % (line_count)
         # Comment/header lines start with @
         if line[0] != "@" and len(line.strip().split()) > 2:
             line_count += 1
-            line2 = line.strip().split()
-            flag = int(line2[1])
-            # Handle SE:
-            if (flag & 0x100):  # secondary alignment
-                continue
-            # mapped SE reads have 0x1 set to 0, and 0x4 (third bit) set to 1
-            if not (flag & 0x1) and not (flag & 0x4):
-                ID = line2[0].split("#")[0]
-                if (flag & 0x10):
-                    line2[9] = reverseComplement(line2[9])
-                    line2[10] = reverse(line2[10])
-                outSE.write("@" + ID + '\n')
-                outSE.write(line2[9] + '\n')
-                outSE.write('+\n' + line2[10] + '\n')
-                SE_written += 1
-                continue
-            # Handle PE:
-            #logic:  0x1 = multiple segments in sequencing,   0x4 = segment unmapped,  0x8 = next segment unmapped
-            if ((strict and (flag & 0x1) and not (flag & 0x4) and not (flag & 0x8))
-                    or (not strict and (flag & 0x1) and (not (flag & 0x4) or not (flag & 0x8)))):
-                if (flag & 0x40):  # is this PE1 (first segment in template)
-                    #PE1 read, check that PE2 is in dict and write out
-                    ID = line2[0].split("#")[0]
-                    if (flag & 0x10):
-                        line2[9] = reverseComplement(line2[9])
-                        line2[10] = reverse(line2[10])
-                    r1 = [line2[9], line2[10]]  # sequence + qual
-                    if ID in PE2:
-                        writeread(ID, r1, PE2[ID])
-                        del PE2[ID]
-                        PE_written += 1
-                    else:
-                        PE1[ID] = r1
-                elif (flag & 0x80):  # is this PE2 (last segment in template)
-                    #PE2 read, check that PE1 is in dict and write out
-                    ID = line2[0].split("#")[0]
-                    if (flag & 0x10):
-                        line2[9] = reverseComplement(line2[9])
-                        line2[10] = reverse(line2[10])
-                    r2 = [line2[9], line2[10]]
-                    if ID in PE1:
-                        writeread(ID, PE1[ID], r2)
-                        del PE1[ID]
-                        PE_written += 1
-                    else:
-                        PE2[ID] = r2
+            bc = line.split(":")[0]
+
+            if seqToHash(bc) not in gbcDict:
+                # barcode does not match whitelist
+                if output_all:
+                    # if output_all pass line directly to output
+                    outsam.write(line)
+            elif bc == current_bc:
+                # add line to bc processing
+                current_bc_count += 1
+            elif current_bc is None:
+                current_bc = bc
+                # add line to bc processing
+                current_bc_count += 1
+            else:
+                # seen last of barcode
+                # process the bc
+                # record having processed the barcode
+                # output to sam file
+                bc_count += 1
+                current_bc = bc
+                # add line to bc processing
+                current_bc_count = 1
         else:
             # pass header directly to output
-            print "hello"
+            outsam.write(line)
 
 
 #####################################
 # Parse options and setup #
-usage = "usage %prog -o [output file prefix (path + name)] -(pbtg) --quiet samfile"
-usage += "%prog will process alignment file produced by processing_10xReads and do some stuff"
+usage = "usage %prog -o [output file prefix (path + name)] -(a) --quiet samfile"
+usage += "%prog will process alignment file produced by processing_10xReads and do some stuff, assumes sam file is sorted by read name"
 parser = OptionParser(usage=usage, version="%prog 0.0.1")
 
 parser.add_option('-o', '--output', help="Directory + filename to output sam file, or stdout",
@@ -342,6 +343,6 @@ file_path = os.path.dirname(os.path.abspath(__file__))
 
 stime = time.time()
 
-main(infile, outsam, output_all, verbose)
+main(insam, outsam, output_all, verbose)
 
 sys.exit(0)
