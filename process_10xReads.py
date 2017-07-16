@@ -70,10 +70,12 @@ def getHammingOne(seq):
         'C': ['A', 'G', 'T'],
         'G': ['A', 'C', 'T'],
         'T': ['A', 'C', 'G'],
+	'N': ['A', 'C', 'G', 'T'],
         'a': ['C', 'G', 'T'],
         'c': ['A', 'G', 'T'],
         'g': ['A', 'C', 'T'],
-        't': ['A', 'C', 'G']}
+        't': ['A', 'C', 'G'],
+	'n': ['A', 'C', 'G', 'T']}
     res = []
     i = 0
     while i < len(seq):
@@ -449,7 +451,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
         for bc_sequence in f:
             gbcDict[seqToHash(bc_sequence.strip())] = bc_sequence.strip()
         if verbose:
-            sys.stderr("Finished reading in barcode whitelist")
+            sys.stderr.write("Finished reading in barcode whitelist")
 
     try:
         while 1:
