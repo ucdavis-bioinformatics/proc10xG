@@ -59,7 +59,7 @@ def seqToHash(seq):
     result = 0
     i = 0
     while i < len(seq):
-        result += encoding.get(seq[i], 0) * 4**i
+        result += encoding.get(seq[i], 0) * 4**i  #  N character defaults to A
         i += 1
     return result
 
@@ -491,7 +491,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
         output.close()
 
         if verbose:
-            sys.stderr.write("READS\treads analyzed: %i | reads/sec: %i | barcodes: %i | reads/barcode: %f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
+            sys.stderr.write("READS\treads analyzed:%i|reads/sec:%i|barcodes:%i|reads/barcode:%f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
             sys.stderr.write("BARCODE\tmatch: %i\n" % barcode_match)
             sys.stderr.write("BARCODE\tmismatch1: %i\n" % barcode_1mismatch)
             sys.stderr.write("BARCODE\tambiguous: %i\n" % barcode_ambiguous)
