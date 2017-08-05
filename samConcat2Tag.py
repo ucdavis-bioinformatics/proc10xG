@@ -1,17 +1,18 @@
 #!/usr/bin/env python
-
 '''
+Copyright 2017 Matt Settles
+Created June 8, 2017
+
 bwa mem -C option concatenats the fasta/fastq
 CTACATTGTCAAGGGT:E00558:34:HGCJ3ALXX:1:1101:2108:1731   99      000000F 922571  60      127M    =       922961  517     ACTCGGGGAGGTGTTAGCTGCTGCCTCACACATTGGGTTTATAGGCTGAATCTTGTTCTCTTTAGGCTTCCAGAGTTTTCTCAGTTACTATTTCTCCTGTCACATACTCGCTGCTTCTTCTGTCATA JJJJJJ<JJF<7A7FJJJJJJ<JJJAJAJJJFJFFFJ----AJJFJ---7---<FJJ<JF<7FFFJJJFJJAJF-AAFFFFF-AFJF7FF<A--FJJJAF)-7-77<<7--)7)<<--77A7-<--< NM:i:3  MD:Z:74T34A3T13 AS:i:112        XS:i:19 1:N:0:GOOD:CCGATTAA:CTACATTGTCAAGGGT:<AAFFJJFJJFJJJJJ:CCAGTGA:J<FFFJJ
 
 This pulls it out, 9 columns and produces new 10x tags in the bam then writes to out
-
 '''
 import sys
 import os
 from optparse import OptionParser  # http://docs.python.org/library/optparse.html
 
-
+# TODO: ADD parameter for sample ID
 usage = "usage: %prog -o output_base inputfile.SAM"
 parser = OptionParser(usage=usage)
 parser.add_option('-o', '--output_base', help="output file basename",
