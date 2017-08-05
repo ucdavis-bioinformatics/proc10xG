@@ -94,12 +94,19 @@ sequence and the number of reads assigned to that barcode. Only barcodes found i
 
 example:
 TGTACGAGTCGGCTAC	3
+
 CAACCAAGTTACCGAT	1
+
 CGAAGCCAGAGGGAAT	1
+
 TCACGCTCACACTCGG	2
+
 TCGCGTTTCCAGTACA	3
+
 TATCTACAGTCGTTTG	1
+
 CTTAATCAGCCATAAA	1
+
 TTGCCGTGTTAGTGGG	2
 
 ## proc10xGenomics.py, process raw 10x genomic reads (fastq files)
@@ -150,7 +157,7 @@ then sort by read id (with gem barcode) and finally output bam file
 Map processed reads using bwa mem (-C option to append comment), post process with samConcat2tag.py and
 then sort by read id (with gem barcode) and finally output directly to bam file
 
-> bwa mem -t 1 -p -C testdata/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | python samConcat2Tag.py | samtools sort -n -o mapping.bam -
+> bwa mem -t 1 -p -C testdata/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | samConcat2Tag.py | samtools sort -n -o mapping.bam -
 
 Process a bwa mem sam file with samConcat2Tag.py to exract comment and create tags then sort by position
 
@@ -169,6 +176,6 @@ Process a bwa mem sam file with samConcat2Tag.py to exract comment and create ta
 
 and finally saving output to stderr.out and stdout.out
 
-> python process_10xReads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
+> process_10xReads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
   -2 data/CaCon-sm_R2_001.fastq.gz | \
-  bwa mem -t 1 -p -C data/polished_p_ctg.fa - | python samConcat2Tag.py | samtools sort -n -o mapping.bcmapped.bam - 2> stderr.out > stdout.out
+  bwa mem -t 1 -p -C data/polished_p_ctg.fa - | samConcat2Tag.py | samtools sort -n -o mapping.bcmapped.bam - 2> stderr.out > stdout.out
