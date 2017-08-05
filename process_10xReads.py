@@ -510,21 +510,20 @@ usage = "usage %prog -o [output file prefix (path + name)] -(aibtg) --quiet -1 [
 usage += "%prog will process read file produced by 10x genomics and do some stuff"
 
 version_num = "0.0.1"
-parser = argparse.ArgumentParser(
-        description='process_10xReads.py, to process raw fastq files extracting gem barcodes and comparing to a white list',
-        epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
+parser = argparse.ArgumentParser(description='process_10xReads.py, to process raw fastq files extracting gem barcodes and comparing to a white list',
+                                 epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
 parser.add_argument('--version', action='version', version="%(prog)s version: " + version_num)
 
-parser.add_argument('-o', '--output', help="Directory + prefix to output reads, stdout [default: %(default)s]",
-                  action="store", type=str, dest="output_dir", default="stdout")
-    
+parser.add_argument('-o', '--output', help="Directory + prefix to output reads, [default: %(default)s]",
+                    action="store", type=str, dest="output_dir", default="stdout")
+
 parser.add_argument('-a', '--all', help="output all reads, not just those with valid gem barcode, STATUS will be UNKNOWN, or AMBIGUOUS [default: %(default)s]",
                     action="store_true", dest="output_all", default=False)
 
 parser.add_argument('-i', help="output in interleaved format, if -o stdout, interleaved will be chosen automatically [default: %(default)s]",
                     action="store_true", dest="interleaved", default=False)
 
-#parser.add_option('-p', '', help="profile the reads and barcodes, FUTURE",
+# parser.add_option('-p', '', help="profile the reads and barcodes, FUTURE",
 #                  action="store_true", dest="profile", default=False)
 
 parser.add_argument('-b', '--bctrim', help='trim gem barcode [default: %(default)s]',
@@ -543,15 +542,15 @@ parser.add_argument('--quiet', help="turn off verbose output",
 group = parser.add_argument_group("Inputs", "10x fastq files to input")
 
 group.add_argument('-1', '--read1', metavar="read1", dest='read1', help='read1 of a pair, multiple files can be specified separated by comma',
-                 action='store', type=str, nargs=1)
+                   action='store', type=str, nargs=1)
 
 group.add_argument('-2', '--read2', metavar="read2", dest='read2', help='read2 of a pair, multiple files can be specified separated by comma',
-                 action='store', type=str, nargs=1)
+                   action='store', type=str, nargs=1)
 
 options = parser.parse_args()
 
 output_dir = options.output_dir
-#profile = options.profile
+# profile = options.profile
 profile = False
 bctrim = options.bctrim
 trim = options.trim

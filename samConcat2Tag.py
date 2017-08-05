@@ -10,30 +10,38 @@ This pulls it out, 9 columns and produces new 10x tags in the bam then writes to
 '''
 import sys
 import os
-from optparse import OptionParser  # http://docs.python.org/library/optparse.html
+import argparse
+
+version_num = "0.0.1"
+parser = argparse.ArgumentParser(
+        description='samConcat2Tag, processes bwa mem sam format where the read comment has been appended to the mapping line following process_10xReads.py',
+        epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
+parser.add_argument('--version', action='version', version="%(prog)s version: " + version_num)
 
 # TODO: ADD parameter for sample ID
-usage = "usage: %prog -o output_base inputfile.SAM"
-parser = OptionParser(usage=usage)
-parser.add_option('-o', '--output_base', help="output file basename",
-                  action="store", type="str", dest="output_base", default=None)
+parser.add_argument('-o', '--output_base', help="Directory + prefix to output, [default: %(default)s]",
+                    action="store", type=str, dest="output_base", default="stdout")
 
-(options, args) = parser.parse_args()  # uncomment this line for command line support
+parser.add_argument('inputfile', metavar='inputsam', type=str, nargs='?',
+                    help='Sam file to process [default: %(default)s]', default="stdin")
 
 
-if len(args) == 1:
-    infile = args[0]
+args = parser.parse_args()  # uncomment this line for command line support
+
+
+if args.inputfile == 'stdin':
+    # reading from stdin
+    insam = sys.stdin
+else:
+    infile = args.inputfile
     # Start opening input/output files:
     if not os.path.exists(infile):
         sys.exit("Error, can't find input file %s" % infile)
     insam = open(infile, 'r')
-else:
-    # reading from stdin
-    insam = sys.stdin
 
-base = options.output_base
+base = args.output_base
 
-if base is None:
+if base is "stdout":
     out = sys.stdout
 else:
     out = open(base + ".sam", 'w')

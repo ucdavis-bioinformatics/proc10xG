@@ -15,7 +15,8 @@ Scripts in progress, not ready for use
 process fastq files generated from bcl2fastq, longranger mkfastq, or supernova mkfastq. 
 1. extract gem barcode (default: first 16bp of read one), from both sequence and quality
 1. trim primer from read (default: next 7bp of read one), from both sequence and quality
-1. compare extracted barcode sequence to the whitelist of barcodes, whitelist is expected to be in directory barcodes, relative the python script.
+1. compare extracted barcode sequence to the whitelist of barcodes, whitelist is expected
+	to be in directory barcodes, relative the python script.
 1. label read status as 
 	1. MATCH - perfect match to a whitelist barcode
 	1. MISMATCH1 - edit distance of 1 away from a whitelist barcode
@@ -71,7 +72,9 @@ reads can be output as fastq read1 and fastq read 2 in standard format file, or 
 format where read 2 follows read 1 in a single file, this faciliates streaming.
 
 #### additional output to standard error, when verbose is on
-When verbose option is turned on (default), after every 250,000 reads and the final read the following is printed to stdout
+When verbose option is turned on (default), after every 250,000 reads and the final read the
+following is printed to stdout
+
 > READS	reads analyzed:X|reads/sec:X|barcodes:X|median_reads/barcode:X
 
 detailing the applications progress
@@ -86,38 +89,85 @@ These lines can be grepped out of a stdout file, or straight from the output str
 
 #### whitelisted barcode count
 
-A whitelisted barcode counts file is produced ([output]_barcodes.txt) containing two columns, the barcode sequence and the number of reads assigned to that barcode. Only barcodes found in the whitelist are output
+A whitelisted barcode counts file is produced ([output]_barcodes.txt) containing two columns, the barcode
+sequence and the number of reads assigned to that barcode. Only barcodes found in the whitelist are output
 
 example:
->	TGTACGAGTCGGCTAC	3
->	CAACCAAGTTACCGAT	1
->	CGAAGCCAGAGGGAAT	1
->	TCACGCTCACACTCGG	2
->	TCGCGTTTCCAGTACA	3
->	TATCTACAGTCGTTTG	1
->	CTTAATCAGCCATAAA	1
->	TTGCCGTGTTAGTGGG	2
+TGTACGAGTCGGCTAC	3
+CAACCAAGTTACCGAT	1
+CGAAGCCAGAGGGAAT	1
+TCACGCTCACACTCGG	2
+TCGCGTTTCCAGTACA	3
+TATCTACAGTCGTTTG	1
+CTTAATCAGCCATAAA	1
+TTGCCGTGTTAGTGGG	2
 
+## proc10xGenomics.py, process raw 10x genomic reads (fastq files)
+process a sam formatted file generated from bwa mem after preprocessing reads with proc10xgenomics.py.
+bwa mem with the -C option appends the read comment to the end of the sam mapping line, this is not in 
+a standard tag format and needs to be further parsed. Most software will error on the sam file with the
+appended info without additional processing
+
+SAM tags generated from the script
+* ST:Z - Read status
+* BX:Z - GEM Barcode ID (with appended sample '-1'), whitelisted ID
+* BC:Z - Library Barcode
+* QT:Z - Library Barcode Quality (if Index read not provided then all '!')
+* RX:Z - GEM Barcode Sequence
+* QX:Z - GEM Barcode Quality
+* TR:Z - Primer Sequence
+* TQ:Z - Primer Quality
+
+### Usage
+
+	usage: samConcat2Tag.py [-h] [--version] [-o OUTPUT_BASE] [inputsam]
+
+	samConcat2Tag, processes bwa mem sam format where the read comment has been
+	appended to the mapping line following process_10xReads.py
+
+	positional arguments:
+	  inputsam              Sam file to process [default: stdin]
+
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  --version             show program's version number and exit
+	  -o OUTPUT_BASE, --output_base OUTPUT_BASE
+	                        Directory + prefix to output, [default: stdout]
+
+	For questions or comments, please contact Matt Settles <settles@ucdavis.edu>
+	samConcat2Tag.py version: 0.0.1
 
 ## Examples
 
-proc10xGenomics.py -o testing -1 testdata/CaCon-sm_R1_001.fastq.gz -2 testdata/CaCon-sm_R2_001.fastq.gz
+Process 10x reads outputting to files named testing
+> proc10xGenomics.py -o testing -1 testdata/CaCon-sm_R1_001.fastq.gz -2 testdata/CaCon-sm_R2_001.fastq.gz
 
-> bwa mem -C testdata/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | python samConcat2Tag.py | samtools sort -n - | samtools view -h -o mapping.sam -
+Map processed reads using bwa mem (-C option to append comment), post process with samConcat2tag.py and
+then sort by read id (with gem barcode) and finally output bam file
+
+> bwa mem -C testdata/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | samConcat2Tag.py | samtools sort -n - | samtools view -h -o mapping.sam -
+
+Map processed reads using bwa mem (-C option to append comment), post process with samConcat2tag.py and
+then sort by read id (with gem barcode) and finally output directly to bam file
 
 > bwa mem -t 1 -p -C testdata/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | python samConcat2Tag.py | samtools sort -n -o mapping.bam -
 
+Process a bwa mem sam file with samConcat2Tag.py to exract comment and create tags then sort by position
+
 > samConcat2Tag.py saved.sam | samtools sort - | samtools view
 
-> proc10xGenomics.py -a -1 data/CaCon-sm_R1_001.fastq.gz -2 data/CaCon-sm_R2_001.fastq.gz | bwa mem -t 1 -p -C data/polished_p_ctg.fa - | samConcat2Tag.py | samtools sort -m 768M --threads 0 -n -o mapping.bam -
+1. first process reads with process_10xReads.py which extracts the GEM barcode and primer sequence and compares
+ the barcode to a white list, marking reads with status. Then appends the status, library barcocde, GEM barcode,
+ primer sequences and cooresponding quality scores to the comment of the read ID and the whitelisted barcode to
+ the beginning of the read, in interleaved format
 
+1. Then map to the genome using bwa mem with flags -p (interleaved) and -C (appends comment to the sam file)
 
-first process reads with process_10xReads.py which extracts the GEM barcode and primer sequence and compares the barcode to a white list, marking reads with status. Then appends the status, library barcocde, GEM barcode, primer sequences and cooresponding quality scores to the comment of the read ID and the whitelisted barcode to the beginning of the read, in interleaved format
+1. Next process with samContcat2Tag.py which extracts the appended commend and add tags
 
-Then map to the genome using bwa mem with flags -p (interleaved) and -C (appends comment to the sam file)
+1. Finally, sort using samtools sort, sorting on reads ID (GEM Barcode)
 
-Next process with samContcat2Tag.py which extracts the appended commend and add tags
-Finally, sort using samtools sort, sorting on reads ID (GEM Barcode)
+and finally saving output to stderr.out and stdout.out
 
 > python process_10xReads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
   -2 data/CaCon-sm_R2_001.fastq.gz | \
