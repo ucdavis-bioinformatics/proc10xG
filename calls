@@ -1,13 +1,13 @@
  
-python proc10xGenomics.py -o testing -1 testdata/CaCon-sm_R1_001.fastq.gz -2 testdata/CaCon-sm_R2_001.fastq.gz
+./process_10xReads.py -o testing -1 data/CaCon-sm_R1_001.fastq.gz -2 data/CaCon-sm_R2_001.fastq.gz
 
-bwa mem -C testdata/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | python samConcat2Tag.py | samtools sort -n - | samtools view -h -o mapping.sam -
+bwa mem -C data/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | ./samConcat2Tag.py | samtools sort -n - | samtools view -h -o mapping.sam -
 
-bwa mem -t 1 -p -C testdata/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | python samConcat2Tag.py | samtools sort -n -o mapping.bam -
+bwa mem -t 1 -p -C data/polished_p_ctg.fa testing_R1_001.fastq testing_R2_001.fastq | ./samConcat2Tag.py | samtools sort -n -o mapping.bam -
 
-python samConcat2Tag.py saved.sam | samtools sort - | samtools view
+samConcat2Tag.py saved.sam | samtools sort - | samtools view
 
-python proc10xGenomics.py -a -1 data/CaCon-sm_R1_001.fastq.gz -2 data/CaCon-sm_R2_001.fastq.gz | bwa mem -t 1 -p -C data/polished_p_ctg.fa - | python samConcat2Tag.py | samtools sort -m 768M --threads 0 -n -o mapping.bam -
+./process_10xReads.py -a -1 data/CaCon-sm_R1_001.fastq.gz -2 data/CaCon-sm_R2_001.fastq.gz | bwa mem -t 1 -p -C data/polished_p_ctg.fa - | ./samConcat2Tag.py | samtools sort -m 768M --threads 0 -n -o mapping.bam -
 
 #################################################################################################################
 ## first process reads with process_10xReads.py which extracts the GEM barcode and primer sequence,
@@ -32,6 +32,6 @@ python proc10xGenomics.py -a -1 data/CaCon-sm_R1_001.fastq.gz -2 data/CaCon-sm_R
 ##  Finally, sort using samtools sort, sorting on reads ID (GEM Barcode)
 #################################################################################################################
 
-python process_10xReads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
+./process10x_Reads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
   -2 data/CaCon-sm_R2_001.fastq.gz | \
-  bwa mem -t 1 -p -C data/polished_p_ctg.fa - | python samConcat2Tag.py | samtools sort -n -o mapping.bcmapped.bam - 2> stderr.out > stdout.out
+  bwa mem -t 1 -p -C data/polished_p_ctg.fa - | ./samConcat2Tag.py | samtools sort -n -o mapping.bcmapped.bam - 2> stderr.out > stdout.out

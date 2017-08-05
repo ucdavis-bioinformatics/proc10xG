@@ -497,10 +497,10 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
 
         if verbose:
             sys.stderr.write("READS\treads analyzed:%i|reads/sec:%i|barcodes:%i|reads/barcode:%f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
-            sys.stderr.write("BARCODE\tMATCH: %i (%.2f%)\n" % (barcode_match, (barcode_match / read_count) * 100))
-            sys.stderr.write("BARCODE\tMISMATCH1: %i (%.2f%)\n" % (barcode_1mismatch, (barcode_1mismatch / read_count) * 100))
-            sys.stderr.write("BARCODE\tAMBIGUOUS: %i (%.2f%)\n" % (barcode_ambiguous, (barcode_ambiguous / read_count) * 100))
-            sys.stderr.write("BARCODE\tUNKNOWN: %i (%.2f%)\n" % (barcode_unknown, (barcode_unknown / read_count) * 100))
+            sys.stderr.write("BARCODE\tMATCH: %i (%.2f%%)\n" % (barcode_match, (float(barcode_match) / read_count) * 100))
+            sys.stderr.write("BARCODE\tMISMATCH1: %i (%.2f%%)\n" % (barcode_1mismatch, (float(barcode_1mismatch) / read_count) * 100))
+            sys.stderr.write("BARCODE\tAMBIGUOUS: %i (%.2f%%)\n" % (barcode_ambiguous, (float(barcode_ambiguous) / read_count) * 100))
+            sys.stderr.write("BARCODE\tUNKNOWN: %i (%.2f%%)\n" % (barcode_unknown, (float(barcode_unknown) / read_count) * 100))
         pass
 
 
@@ -542,10 +542,10 @@ parser.add_argument('--quiet', help="turn off verbose output",
 group = parser.add_argument_group("Inputs", "10x fastq files to input")
 
 group.add_argument('-1', '--read1', metavar="read1", dest='read1', help='read1 of a pair, multiple files can be specified separated by comma',
-                   action='store', type=str, nargs=1)
+                   action='store', type=str, nargs='+')
 
 group.add_argument('-2', '--read2', metavar="read2", dest='read2', help='read2 of a pair, multiple files can be specified separated by comma',
-                   action='store', type=str, nargs=1)
+                   action='store', type=str, nargs='+')
 
 options = parser.parse_args()
 
@@ -562,12 +562,10 @@ infile1 = options.read1
 if infile1 is None:
     sys.stderr.write("Read file 1 is missing\n")
     sys.exit(1)
-infile1 = infile1.split(',')
 infile2 = options.read2
 if infile2 is None:
     sys.stderr.write("Read file 2 is missing\n")
     sys.exit(1)
-infile2 = infile2.split(',')
 
 verbose = options.verbose
 

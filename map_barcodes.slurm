@@ -8,8 +8,8 @@
 #SBATCH --partition=gc128 # Partition to submit to
 #SBATCH --output=map10x.out # File to which STDOUT will be written
 #SBATCH --error=map10x.err # File to which STDERR will be written
-#SBATCH --mail-type=END # Type of email notification- BEGIN,END,FAIL,ALL
-#SBATCH --mail-user=settles@ucdavis.edu # Email to which notifications will be sent
+#SBATCH --mail-type=ALL # Type of email notification- BEGIN,END,FAIL,ALL
+#SBATCH --mail-user=youremail@ucdavis.edu # Email to which notifications will be sent
 
 start=`date +%s`
 
@@ -25,12 +25,13 @@ fastq2=${rawbase}/Menidia_Male_L_S1_L004_R2_001.fastq.gz
 fasta='/share/biocore/projects/Connon_R_UCD/Menidia_10xgenome/Acanthochromis_polyacanthus/GCA_002109545.1_ASM210954v1_genomic.fna'
 output='Menidia-10xMapping2Apolyacanthus.bam'
 
-call="python proc10xG/process_10xReads.py -a \
+# assumes that proc10xG repository is in the current working directory
+call="proc10xG/process_10xReads.py -a \
  -1 ${fastq1} \
  -2 ${fastq2} \
  | bwa mem -t 16 -p -C \
  ${fasta} - \
- | python proc10xG/samConcat2Tag.py \
+ | proc10xG/samConcat2Tag.py \
  | samtools sort -m 768M --threads 4 -n \
  | samtools view -hbt ${fasta}.fai \
  -o ${output} -"
