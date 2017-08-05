@@ -66,7 +66,7 @@ process fastq files generated from bcl2fastq, longranger mkfastq, or supernova m
 ### Output
 Reads are output, where the read ID line is annotated with what was extracted in the form:
 
-> GEM_BC:ORIGINAL_READID 1:N:0:STATUS:LIBRARY_BC:GEM_BC:GEM_BC_QUAL:TRIM_SEQ:TRIM_SEQ_QL
+GEM_BC:ORIGINAL_READID 1:N:0:STATUS:LIBRARY_BC:GEM_BC:GEM_BC_QUAL:TRIM_SEQ:TRIM_SEQ_QL
 
 reads can be output as fastq read1 and fastq read 2 in standard format file, or in interleaved 
 format where read 2 follows read 1 in a single file, this faciliates streaming.
@@ -75,15 +75,15 @@ format where read 2 follows read 1 in a single file, this faciliates streaming.
 When verbose option is turned on (default), after every 250,000 reads and the final read the
 following is printed to stdout
 
-> READS	reads analyzed:X|reads/sec:X|barcodes:X|median_reads/barcode:X
+READS	reads analyzed:X|reads/sec:X|barcodes:X|median_reads/barcode:X
 
 detailing the applications progress
 
-and at the end of processing
-> BARCODE	MATCH: X (X%)
-> BARCODE	MISMATCH1: X (X%)
-> BARCODE	AMBIGUOUS: X (X%)
-> BARCODE	UNKNOWN: X (X%)
+and at the end of processing  
+BARCODE	MATCH: X (X%)  
+BARCODE	MISMATCH1: X (X%)  
+BARCODE	AMBIGUOUS: X (X%)  
+BARCODE	UNKNOWN: X (X%)  
 
 These lines can be grepped out of a stdout file, or straight from the output stream
 
@@ -92,15 +92,15 @@ These lines can be grepped out of a stdout file, or straight from the output str
 A whitelisted barcode counts file is produced ([output]_barcodes.txt) containing two columns, the barcode
 sequence and the number of reads assigned to that barcode. Only barcodes found in the whitelist are output
 
-example: 
-TGTACGAGTCGGCTAC	3 
-CAACCAAGTTACCGAT	1 
-CGAAGCCAGAGGGAAT	1 
-TCACGCTCACACTCGG	2 
-TCGCGTTTCCAGTACA	3 
-TATCTACAGTCGTTTG	1 
-CTTAATCAGCCATAAA	1 
-TTGCCGTGTTAGTGGG	2 
+example:  
+TGTACGAGTCGGCTAC	3  
+CAACCAAGTTACCGAT	1  
+CGAAGCCAGAGGGAAT	1  
+TCACGCTCACACTCGG	2  
+TCGCGTTTCCAGTACA	3  
+TATCTACAGTCGTTTG	1  
+CTTAATCAGCCATAAA	1  
+TTGCCGTGTTAGTGGG	2  
 
 ## proc10xGenomics.py, process raw 10x genomic reads (fastq files)
 process a sam formatted file generated from bwa mem after preprocessing reads with proc10xgenomics.py.
