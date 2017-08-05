@@ -170,6 +170,6 @@ Process a bwa mem sam file with samConcat2Tag.py to exract comment and create ta
 1. sort using samtools sort, sorting on reads ID (GEM Barcode)
 1. and finally saving output to stderr.out and stdout.out
 
-> process_10xReads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
+> ./process_10xReads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
   -2 data/CaCon-sm_R2_001.fastq.gz | \
-  bwa mem -t 1 -p -C data/polished_p_ctg.fa - | samConcat2Tag.py | samtools sort -n -o mapping.bcmapped.bam - 2> stderr.out > stdout.out
+  bwa mem -t 1 -p -C data/polished_p_ctg.fa - | ./samConcat2Tag.py | samtools sort -n -o mapping.bcmapped.bam - 2> stderr.out > stdout.out

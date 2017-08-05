@@ -32,6 +32,6 @@ samConcat2Tag.py saved.sam | samtools sort - | samtools view
 ##  Finally, sort using samtools sort, sorting on reads ID (GEM Barcode)
 #################################################################################################################
 
-./process10x_Reads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
+./process_10xReads.py -a -1 data/CaCon-sm_R1_001.fastq.gz \
   -2 data/CaCon-sm_R2_001.fastq.gz | \
   bwa mem -t 1 -p -C data/polished_p_ctg.fa - | ./samConcat2Tag.py | samtools sort -n -o mapping.bcmapped.bam - 2> stderr.out > stdout.out
