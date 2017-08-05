@@ -4,6 +4,7 @@ Copyright 2017 Matt Settles
 Created June 8, 2017
 """
 from optparse import OptionParser
+from collectons import Counter
 import os
 import sys
 import time
@@ -118,7 +119,6 @@ def main(insam, output_all, verbose):
         # Comment/header lines start with @
         if line[0] == "@":
             # pass header directly to output
-            outsam.write(line)
             if line[0:3] == "@SQ":
                 # reference sequence id
                 sp = line.split()
@@ -126,6 +126,7 @@ def main(insam, output_all, verbose):
         elif line[0] != "@" and len(line.strip().split()) > 2:
             line_count += 1
             bc = line.split(":")[0]
+
             # instead check the ST:Z:GOOD for GOOD or MATCH or MISMATCH1
             if line.split()[15][5:] not in ['GOOD', 'MATCH', 'MISMATCH1']:
                 # if seqToHash(bc) not in gbcDict:

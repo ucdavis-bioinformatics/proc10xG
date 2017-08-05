@@ -8,8 +8,7 @@ identify and extract the gem barcode, compare it to a white list
 and then strip off the random priming region. Attach all the sequence
 data to the end of the read ids
 """
-from optparse import OptionParser
-from optparse import OptionGroup
+import argparse
 import sys
 import os
 import time
@@ -507,47 +506,53 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
 
 #####################################
 # Parse options and setup #
-usage = "usage %prog -o [output file prefix (path + name)] -(aipbtg) --quiet -1 [read1] -2 [read2]\n"
+usage = "usage %prog -o [output file prefix (path + name)] -(aibtg) --quiet -1 [read1] -2 [read2]\n"
 usage += "%prog will process read file produced by 10x genomics and do some stuff"
-parser = OptionParser(usage=usage, version="%prog 0.0.1")
 
-parser.add_option('-o', '--output', help="Directory + prefix to output reads, if stdout",
-                  action="store", type="str", dest="output_dir", default="stdout")
+version_num = "0.0.1"
+parser = argparse.ArgumentParser(
+        description='process_10xReads.py, to process raw fastq files extracting gem barcodes and comparing to a white list',
+        epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
+parser.add_argument('--version', action='version', version="%(prog)s version: " + version_num)
 
-parser.add_option('-a', '--all', help="output all reads, not just those with valid gem barcode, STATUS will be UNKNOWN, or AMBIGUOUS",
-                  action="store_true", dest="output_all", default=False)
+parser.add_argument('-o', '--output', help="Directory + prefix to output reads, stdout [default: %(default)s]",
+                  action="store", type=str, dest="output_dir", default="stdout")
+    
+parser.add_argument('-a', '--all', help="output all reads, not just those with valid gem barcode, STATUS will be UNKNOWN, or AMBIGUOUS [default: %(default)s]",
+                    action="store_true", dest="output_all", default=False)
 
-parser.add_option('-i', '', help="output in interleaved format, if -o stdout, interleaved will be chosen automatically",
-                  action="store_true", dest="interleaved", default=False)
+parser.add_argument('-i', help="output in interleaved format, if -o stdout, interleaved will be chosen automatically [default: %(default)s]",
+                    action="store_true", dest="interleaved", default=False)
 
-parser.add_option('-p', '', help="profile the reads and barcodes, FUTURE",
-                  action="store_true", dest="profile", default=False)
+#parser.add_option('-p', '', help="profile the reads and barcodes, FUTURE",
+#                  action="store_true", dest="profile", default=False)
 
-parser.add_option('-b', '--bctrim', help="trim gem barcode",
-                  action="store", type="int", dest="bctrim", default=16)
+parser.add_argument('-b', '--bctrim', help='trim gem barcode [default: %(default)s]',
+                    type=int, dest="bctrim", default=16)
 
-parser.add_option('-t', '--trim', help="trim addional bases after the gem barcode",
-                  action="store", type="int", dest="trim", default=7)
+parser.add_argument('-t', '--trim', help="trim addional bases after the gem barcode [default: %(default)s]",
+                    type=int, dest="trim", default=7)
 
-parser.add_option('-g', '--nogzip', help="do not gzip the output, ignored if output is stdout",
-                  action="store_false", dest="nogzip", default=True)
+parser.add_argument('-g', '--nogzip', help="do not gzip the output, ignored if output is stdout",
+                    action="store_false", dest="nogzip", default=True)
 
-parser.add_option('--quiet', help="turn off verbose output",
-                  action="store_false", dest="verbose", default=True)
-group = OptionGroup(parser, "Inputs",
-                    "10x fastq files to input")
-group.add_option('-1', '--read1', metavar="read1", dest='read1', help='read1 of a pair, multiple files can be specified separated by comma',
-                  action='store', type=str, nargs=1)
-
-group.add_option('-2', '--read2', metavar="read2", dest='read2', help='read2 of a pair, multiple files can be specified separated by comma',
-                  action='store', type=str, nargs=1)
-parser.add_option_group(group)
+parser.add_argument('--quiet', help="turn off verbose output",
+                    action="store_false", dest="verbose", default=True)
 
 
-(options, args) = parser.parse_args()
+group = parser.add_argument_group("Inputs", "10x fastq files to input")
+
+group.add_argument('-1', '--read1', metavar="read1", dest='read1', help='read1 of a pair, multiple files can be specified separated by comma',
+                 action='store', type=str, nargs=1)
+
+group.add_argument('-2', '--read2', metavar="read2", dest='read2', help='read2 of a pair, multiple files can be specified separated by comma',
+                 action='store', type=str, nargs=1)
+
+options = parser.parse_args()
 
 output_dir = options.output_dir
-profile = options.profile
+#profile = options.profile
+profile = False
 bctrim = options.bctrim
 trim = options.trim
 nogzip = options.nogzip
