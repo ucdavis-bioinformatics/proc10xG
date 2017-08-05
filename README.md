@@ -92,22 +92,15 @@ These lines can be grepped out of a stdout file, or straight from the output str
 A whitelisted barcode counts file is produced ([output]_barcodes.txt) containing two columns, the barcode
 sequence and the number of reads assigned to that barcode. Only barcodes found in the whitelist are output
 
-example:
-TGTACGAGTCGGCTAC	3
-
-CAACCAAGTTACCGAT	1
-
-CGAAGCCAGAGGGAAT	1
-
-TCACGCTCACACTCGG	2
-
-TCGCGTTTCCAGTACA	3
-
-TATCTACAGTCGTTTG	1
-
-CTTAATCAGCCATAAA	1
-
-TTGCCGTGTTAGTGGG	2
+example: 
+TGTACGAGTCGGCTAC	3 
+CAACCAAGTTACCGAT	1 
+CGAAGCCAGAGGGAAT	1 
+TCACGCTCACACTCGG	2 
+TCGCGTTTCCAGTACA	3 
+TATCTACAGTCGTTTG	1 
+CTTAATCAGCCATAAA	1 
+TTGCCGTGTTAGTGGG	2 
 
 ## proc10xGenomics.py, process raw 10x genomic reads (fastq files)
 process a sam formatted file generated from bwa mem after preprocessing reads with proc10xgenomics.py.
