@@ -11,36 +11,36 @@ Scripts in progress, not ready for use
 * process_mapping.py - remap ambiguous alignment using gem barocode to identify correct placement 
 
 ## proc10xGenomics.py
-`
-Usage: usage process_10xReads.py -o [output file prefix (path + name)] -(aipbtg) --quiet -1 [read1] -2 [read2]
-process_10xReads.py will process read file produced by 10x genomics and do some stuff
 
-Options:
-  --version             show program's version number and exit
-  -h, --help            show this help message and exit
-  -o OUTPUT_DIR, --output=OUTPUT_DIR
-                        Directory + prefix to output reads, if stdout
-  -a, --all             output all reads, not just those with valid gem
-                        barcode, STATUS will be UNKNOWN, or AMBIGUOUS
-  -i                    output in interleaved format, if -o stdout,
-                        interleaved will be chosen automatically
-  -p                    profile the reads and barcodes, FUTURE
-  -b BCTRIM, --bctrim=BCTRIM
-                        trim gem barcode
-  -t TRIM, --trim=TRIM  trim addional bases after the gem barcode
-  -g, --nogzip          do not gzip the output, ignored if output is stdout
-  --quiet               turn off verbose output
+	Usage: usage process_10xReads.py -o [output file prefix (path + name)] -(aipbtg) --quiet -1 [read1] -2 [read2]
+	process_10xReads.py will process read file produced by 10x genomics and do some stuff
 
-  Inputs:
-    10x fastq files to input
+	Options:
+	  --version             show program's version number and exit
+	  -h, --help            show this help message and exit
+	  -o OUTPUT_DIR, --output=OUTPUT_DIR
+	                        Directory + prefix to output reads, if stdout
+	  -a, --all             output all reads, not just those with valid gem
+	                        barcode, STATUS will be UNKNOWN, or AMBIGUOUS
+	  -i                    output in interleaved format, if -o stdout,
+	                        interleaved will be chosen automatically
+	  -p                    profile the reads and barcodes, FUTURE
+	  -b BCTRIM, --bctrim=BCTRIM
+	                        trim gem barcode
+	  -t TRIM, --trim=TRIM  trim addional bases after the gem barcode
+	  -g, --nogzip          do not gzip the output, ignored if output is stdout
+	  --quiet               turn off verbose output
 
-    -1 read1, --read1=read1
-                        read1 of a pair, multiple files can be specified
-                        separated by comma
-    -2 read2, --read2=read2
-                        read2 of a pair, multiple files can be specified
-                        separated by comma
-`
+	  Inputs:
+	    10x fastq files to input
+
+	    -1 read1, --read1=read1
+	                        read1 of a pair, multiple files can be specified
+	                        separated by comma
+	    -2 read2, --read2=read2
+	                        read2 of a pair, multiple files can be specified
+	                        separated by comma
+
 ## Examples
 
 python proc10xGenomics.py -o testing -1 testdata/CaCon-sm_R1_001.fastq.gz -2 testdata/CaCon-sm_R2_001.fastq.gz
