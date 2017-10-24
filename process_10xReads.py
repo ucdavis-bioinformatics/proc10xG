@@ -348,13 +348,13 @@ class IlluminaTwoReadOutput:
             else:
                 make_sure_path_exists(os.path.dirname(self.output_prefix))
                 if self.uncompressed is True:
-                    self.R1f = open(self.output_prefix + '_R1_001.fastq', 'a')
+                    self.R1f = open(self.output_prefix + '_R1_001.fastq', 'w')
                     if not self.interleaved:
-                        self.R2f = open(self.output_prefix + '_R2_001.fastq', 'a')
+                        self.R2f = open(self.output_prefix + '_R2_001.fastq', 'w')
                 else:
-                    self.R1f = sp_gzip_write(self.output_prefix + '_R1_001.fastq.gz', 'ab')
+                    self.R1f = sp_gzip_write(self.output_prefix + '_R1_001.fastq.gz')
                     if not self.interleaved:
-                        self.R2f = sp_gzip_write(self.output_prefix + '_R2_001.fastq.gz', 'ab')
+                        self.R2f = sp_gzip_write(self.output_prefix + '_R2_001.fastq.gz')
         except Exception:
             sys.stderr.write('ERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
             raise
@@ -533,7 +533,7 @@ parser.add_argument('-t', '--trim', help="trim addional bases after the gem barc
                     type=int, dest="trim", default=7)
 
 parser.add_argument('-g', '--nogzip', help="do not gzip the output, ignored if output is stdout",
-                    action="store_false", dest="nogzip", default=True)
+                    action="store_true", dest="nogzip", default=False)
 
 parser.add_argument('--quiet', help="turn off verbose output",
                     action="store_false", dest="verbose", default=True)
