@@ -569,7 +569,7 @@ if infile2 is None:
 
 verbose = options.verbose
 
-file_path = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.dirname(os.path.realpath(__file__))
 
 # need to check, can write to output folder
 
