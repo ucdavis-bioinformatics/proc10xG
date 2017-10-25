@@ -406,7 +406,7 @@ verbose = options.verbose
 # need to check, can write to output folder
 
 # global variables
-file_path = os.path.dirname(os.path.abspath(__file__))
+file_path = os.path.dirname(os.path.realpath(__file__))
 
 stime = time.time()
 
