@@ -66,7 +66,7 @@ process fastq files generated from bcl2fastq, longranger mkfastq, or supernova m
 ### Output
 Reads are output, where the read ID line is annotated with what was extracted in the form:
 
-GEM_BC:ORIGINAL_READID 1:N:0:STATUS:LIBRARY_BC:GEM_BC:GEM_BC_QUAL:TRIM_SEQ:TRIM_SEQ_QL
+WHITELIST_GEM_BC:ORIGINAL_READID 1:N:0:STATUS:LIBRARY_BC:GEM_BC:GEM_BC_QUAL:TRIM_SEQ:TRIM_SEQ_QL
 
 reads can be output as fastq read1 and fastq read 2 in standard format file, or in interleaved 
 format where read 2 follows read 1 in a single file, this faciliates streaming.
