@@ -493,7 +493,7 @@ parser.add_argument('--version', action='version', version="%(prog)s version: " 
 parser.add_argument('-o', '--output', help="Directory + prefix to output reads, [default: %(default)s]",
                     action="store", type=str, dest="output_dir", default="stdout")
 
-parser.add_argument('-s', '--status', metabar="STATUS(S)", dest='status', help="which status condition(s) to filter for, allowable values are MATCH, MISMATCH1, AMBIGUOUS, and UNKNOWN [default: %(default)s]",
+parser.add_argument('-s', '--status', metavar="STATUS(S)", dest='status', help="which status condition(s) to filter for, allowable values are MATCH, MISMATCH1, AMBIGUOUS, and UNKNOWN [default: %(default)s]",
                     action="store", type=str, default=['MATCH', 'MISMATCH1'], nargs='+')
 
 parser.add_argument('-l', help="input is in interleaved format [default: %(default)s]",
