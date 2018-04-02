@@ -14,11 +14,6 @@ import glob
 import errno
 from subprocess import Popen, PIPE, STDOUT
 import string
-import numpy
-
-
-def median(lst):
-    return numpy.median(numpy.array(lst))
 
 
 def sp_gzip_read(file, bufsize=-1):
