@@ -447,7 +447,13 @@ class IlluminaTwoReadOutput:
             except Exception:
                 sys.stderr.write('ERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
                 raise
-
+            except IOError:
+                # stdout is closed, no point in continuing
+                # Attempt to close them explicitly to prevent cleanup problems:
+                try:
+                    sys.stdout.close()
+                except IOError:
+                    pass
 
 def main(read1, read2, output_dir, status, interleaved_in, interleaved_out, nogzip, verbose):
     # Set up the global variables
