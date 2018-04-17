@@ -514,7 +514,11 @@ parser.add_argument('-s', '--status', metavar="STATUS(S)", dest='status', help="
                     action="store", type=str, default=['MATCH', 'MISMATCH1'], nargs='+')
 
 parser.add_argument('-m', '--min', help="Minimum barcode read count to output, -B must be specified [default: %(default)s]",
+<<<<<<< HEAD
                     action="store", type=int, dest='bc_min', default=None)
+=======
+                    action="store", type=int, dest='bc_max', default=None)
+>>>>>>> a38eaf354072d4c8fd6e5290994b7482578e6700
 
 parser.add_argument('-n', '--max', help="Maximum barcode read count to output, -B must be specified [default: %(default)s]",
                     action="store", type=int, dest='bc_max', default=None)
