@@ -446,8 +446,6 @@ class Barcodes:
                         self.gbcDict[seqToHash(bc_line.strip())] = 0
                     except Exception:
                         sys.exit("Error: Unknown barcode file format")
-                if verbose:
-                    sys.stderr.write("Finished reading in barcode list\n")
 
     def keep_barcode(self, barcode):
         bcHash = seqToHash(barcode)
@@ -548,6 +546,8 @@ group.add_argument('-2', '--read2', metavar="read2", dest='read2', help='read2 o
 
 options = parser.parse_args()
 
+verbose = options.verbose
+
 output_dir = options.output_dir
 
 status = options.status
@@ -570,12 +570,14 @@ if (options.bc_min is not None or options.bc_max is not None) and options.barcod
 
 if options.barcode_list is not None:
     bc_table = Barcodes(options.barcode_list)
+    if verbose:
+        sys.stderr.write("Finished reading in barcode file\n")
 elif options.barcode_file is not None:
     bc_table = Barcodes(options.barcode_file, options.bc_min, options.bc_max)
+    if verbose:
+        sys.stderr.write("Finished reading in barcode list\n")
 else:
     bc_table = None
-
-verbose = options.verbose
 
 file_path = os.path.dirname(os.path.realpath(__file__))
 
