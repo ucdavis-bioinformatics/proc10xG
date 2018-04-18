@@ -115,7 +115,7 @@ class TwoReadIlluminaRun:
                     sys.stderr.write('ERROR:[TwoReadIlluminaRun] An unknown state has occured\n')
                     raise Exception
 
-                if len(self.fread1) != len(self.fread2) and not interleaved:
+                if not interleaved and (len(self.fread1) != len(self.fread2)):
                     sys.stderr.write('ERROR:[TwoReadIlluminaRun] Inconsistent number of files for each read\n')
                     raise
         except Exception:
