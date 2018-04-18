@@ -8,6 +8,7 @@ identify and extract the gem barcode, compare it to a white list
 and then strip off the random priming region. Attach all the sequence
 data to the end of the read ids
 """
+import traceback
 import argparse
 import sys
 import os
@@ -501,6 +502,11 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
             sys.stderr.write("PROCESS\tBARCODE\tAMBIGUOUS: %i (%.2f%%)\n" % (barcode_ambiguous, (float(barcode_ambiguous) / read_count) * 100))
             sys.stderr.write("PROCESS\tBARCODE\tUNKNOWN: %i (%.2f%%)\n" % (barcode_unknown, (float(barcode_unknown) / read_count) * 100))
         pass
+    except (KeyboardInterrupt, SystemExit):
+        sys.exit("PROCESS\tERROR\t%s unexpectedly terminated\n" % (__name__))
+    except Exception:
+        sys.stderr.write("".join(traceback.format_exception(*sys.exc_info())))
+        sys.exit("PROCESS\tERROR\tAn unknown fatal error was encountered.\n")
 
 
 #####################################
