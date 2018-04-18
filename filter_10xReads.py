@@ -545,12 +545,12 @@ parser.add_argument('--quiet', help="turn off verbose output",
                     action="store_false", dest="verbose", default=True)
 
 
-group = parser.add_argument_group("Inputs", "Preprocessed 10x fastq files, and barcode to input")
+group = parser.add_argument_group("Inputs", "Preprocessed 10x fastq files (can be gz), and barcode to input")
 
-group.add_argument('-B', '--barcode', metavar="barocode.txt", dest='barcode_file', help='barcode.txt file produced by process_10xReads.py, only needed when using --min, --max flags.',
+group.add_argument('-B', '--barcode', metavar="barcode.txt", dest='barcode_file', help='barcode.txt file produced by process_10xReads.py, only needed when using --min, --max flags.',
                    action='store', type=str, default=None)
 
-group.add_argument('-L', '--list', metavar="barocode_list.txt", dest='barcode_list', help='A list of barcodes (single column, 1 barcode per row) to output.',
+group.add_argument('-L', '--list', metavar="barcode_list.txt", dest='barcode_list', help='A list of barcodes (single column, 1 barcode per row) to output.',
                    action='store', type=str, default=None)
 
 group.add_argument('-1', '--read1', metavar="read1", dest='read1', help='read1 of a pair (or interleaved format), first processed by process_10xReads, multiple files can be specified separated by comma',

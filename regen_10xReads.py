@@ -509,7 +509,7 @@ parser.add_argument('-g', '--nogzip', help="do not gzip the output, ignored if o
 parser.add_argument('--quiet', help="turn off verbose output",
                     action="store_false", dest="verbose", default=True)
 
-group = parser.add_argument_group("Inputs", "Preprocessed 10x fastq files, and barcode to input")
+group = parser.add_argument_group("Inputs", "Preprocessed 10x fastq files (can be gz).")
 
 group.add_argument('-1', '--read1', metavar="read1", dest='read1', help='read1 of a pair (or interleaved format), first processed by process_10xReads, multiple files can be specified separated by comma',
                    action='store', type=str, nargs='*')

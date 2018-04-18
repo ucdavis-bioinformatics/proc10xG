@@ -511,10 +511,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
 
 #####################################
 # Parse options and setup #
-usage = "usage %prog -o [output file prefix (path + name)] -(aibtg) --quiet -1 [read1] -2 [read2]\n"
-usage += "%prog will process read file produced by 10x genomics and do some stuff"
-
-version_num = "0.0.1"
+version_num = "0.0.2"
 parser = argparse.ArgumentParser(description='process_10xReads.py, to process raw fastq files extracting gem barcodes and comparing to a white list',
                                  epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
 parser.add_argument('--version', action='version', version="%(prog)s version: " + version_num)
@@ -544,7 +541,7 @@ parser.add_argument('--quiet', help="turn off verbose output",
                     action="store_false", dest="verbose", default=True)
 
 
-group = parser.add_argument_group("Inputs", "10x fastq files to input")
+group = parser.add_argument_group("Inputs", "10x fastq files to input (can be gz).")
 
 group.add_argument('-1', '--read1', metavar="read1", dest='read1', help='read1 of a pair, multiple files can be specified separated by comma',
                    action='store', type=str, nargs='+')

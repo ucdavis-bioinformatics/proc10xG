@@ -12,7 +12,7 @@ import sys
 import os
 import argparse
 
-version_num = "0.0.1"
+version_num = "0.0.2"
 parser = argparse.ArgumentParser(
     description='samConcat2Tag, processes bwa mem sam format where the read comment has been appended to the mapping line following process_10xReads.py',
     epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
