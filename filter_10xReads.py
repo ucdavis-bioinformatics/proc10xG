@@ -448,7 +448,7 @@ class Barcodes:
                 for bc_line in f:
                     try:
                         bc, count = bc_line.strip().split("\t")
-                        self.gbcDict[seqToHash(bc)] = count
+                        self.gbcDict[seqToHash(bc)] = int(count)
                     except ValueError:
                         self.gbcDict[seqToHash(bc_line.strip())] = 0
                     except Exception:
@@ -506,11 +506,8 @@ def main(read1, read2, barcode_table, output_dir, status, interleaved_in, interl
 
 #####################################
 # Parse options and setup #
-usage = "usage %prog -o [output file prefix (path + name)] -(slig) -(mn) [-B barcode_file] [-L barcode_list] --quiet -1 [read1a,read1b] []-2 read2a,read2b]\n"
-usage += "%prog will process read file produced by preprocess_10xReads.py and filter for certain STATUS conditions."
-
 version_num = "0.0.1"
-parser = argparse.ArgumentParser(description='process_10xReads.py, to process raw fastq files extracting gem barcodes and comparing to a white list',
+parser = argparse.ArgumentParser(description='filter_10xReads.py, process read file produced by preprocess_10xReads.py and filter for certain STATUS conditions, and/or gem barcodes.',
                                  epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
 parser.add_argument('--version', action='version', version="%(prog)s version: " + version_num)
 
@@ -544,7 +541,7 @@ parser.add_argument('--quiet', help="turn off verbose output",
 
 group = parser.add_argument_group("Inputs", "Preprocessed 10x fastq files, and barcode to input")
 
-group.add_argument('-B', '--barcode', metavar="barocode.txt", dest='barcode_file', help='barcode.txt file produced by process_10xReads.py, only needed if using --min, --max flags.',
+group.add_argument('-B', '--barcode', metavar="barocode.txt", dest='barcode_file', help='barcode.txt file produced by process_10xReads.py, only needed when using --min, --max flags.',
                    action='store', type=str, default=None)
 
 group.add_argument('-L', '--list', metavar="barocode_list.txt", dest='barcode_list', help='A list of barcodes (single column, 1 barcode per row) to output.',
