@@ -462,7 +462,7 @@ def main(read1, read2, output_dir, interleaved_in, output_format, nogzip, verbos
 
     try:
         while 1:
-            fragment = iterator.next()
+            fragment = iterator.next_processed()
             read_count += 1
             output.writeRead(fragment)
 

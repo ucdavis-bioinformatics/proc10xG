@@ -486,7 +486,7 @@ def main(read1, read2, barcode_table, output_dir, status, interleaved_in, interl
 
     try:
         while 1:
-            fragment = iterator.next()
+            fragment = iterator.next_processed()
             read_count += 1
 
             if fragment['status'] in status:
