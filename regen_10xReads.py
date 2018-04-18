@@ -5,6 +5,7 @@ Created April 15, 2018
 
 Convert reads back to original for input into Supernova
 """
+import traceback
 import argparse
 import sys
 import os
@@ -475,6 +476,11 @@ def main(read1, read2, output_dir, interleaved_in, output_format, nogzip, verbos
         if verbose:
             sys.stderr.write("REGEN\tREADS\treads analyzed:%i|reads/sec:%i\n" % (read_count, round(read_count / (time.time() - stime), 0)))
         pass
+    except (KeyboardInterrupt, SystemExit):
+        sys.exit("REGEN\tERROR\t%s unexpectedly terminated\n" % (__name__))
+    except Exception:
+        sys.stderr.write("".join(traceback.format_exception(*sys.exc_info())))
+        sys.exit("REGEN\tERROR\tAn unknown fatal error was encountered.\n")
 
 
 #####################################
