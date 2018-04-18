@@ -55,7 +55,7 @@ for line in insam:
         tag = line2[-1]
         if (tag[0:6] in ['1:N:0:', '2:N:0:']):
             tsplit = tag.split(":", 4)
-            tsplit2 = tsplit.split("_")
+            tsplit2 = tsplit[4].split("_")
             if len(tsplit2) != 5:
                 sys.stderr.write("SAMCONCAT\tERROR\tsam file has concatenated info, but its the wrong size")
                 sys.exit(1)
