@@ -90,8 +90,8 @@ class TwoReadIlluminaRun:
         self.interleaved = interleaved
 
         try:
-            if read1 is sys.stdin:
-                self.fread1.extend(read1)
+            if read1 is "stdin":
+                self.fread1.extend([read1])
                 self.interleaved = True
             else:
                 for fread in read1:
@@ -133,8 +133,9 @@ class TwoReadIlluminaRun:
         if self.numberoffiles > 0:
             try:
                 read1 = self.fread1.pop()
-                if read1 is sys.stdin:
-                    pass
+                print(read1)
+                if read1 is "stdin":
+		    self.R1 = sys.stdin
                 elif read1.split(".")[-1] == "gz":
                     self.R1 = sp_gzip_read(read1)
                 else:
@@ -517,16 +518,16 @@ output_dir = options.output_dir
 interleaved_in = options.interleaved_in
 nogzip = options.nogzip
 
-infile1 = options.read1
-if infile1 is None and not options.stdin:
-    sys.exit("Read file 1 is missing")
+if options.stdin:
+    infile1 = "stdin"
+    interleaved_in = True
+else:
+    infile1 = options.read1
+    if infile1 is None and not options.stdin:
+        sys.exit("Read file 1 is missing")
 infile2 = options.read2
 if infile2 is None and not interleaved_in and not options.stdin:
     sys.exit("Read file 2 is missing")
-
-if options.stdin:
-    infile1 = sys.stdin
-    interleaved_in = True
 
 verbose = options.verbose
 
