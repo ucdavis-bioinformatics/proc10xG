@@ -370,12 +370,12 @@ class IlluminaTwoReadOutput:
     def writePairedFastq(self, fragment):
         newid = '@' + (':').join([fragment['gem_bc'], fragment['id']])
         # read 1
-        self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['status'], fragment['library_bc'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual']])]) + '\n')
+        self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['library_bc'], ("_").join([fragment['status'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual']])])]) + '\n')
         self.R1f.write(fragment['read1_seq'] + '\n')
         self.R1f.write('+\n')
         self.R1f.write(fragment['read1_qual'] + '\n')
         # read 2
-        self.R2f.write((' ').join([newid, (':').join(['2', 'N', '0', fragment['status'], fragment['library_bc'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual']])]) + '\n')
+        self.R2f.write((' ').join([newid, (':').join(['2', 'N', '0', fragment['library_bc'], ("_").join([fragment['status'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual']])])]) + '\n')
         self.R2f.write(fragment['read2_seq'] + '\n')
         self.R2f.write('+\n')
         self.R2f.write(fragment['read2_qual'] + '\n')
@@ -384,15 +384,16 @@ class IlluminaTwoReadOutput:
     def writeFastqInterleaved(self, fragment):
         newid = '@' + (':').join([fragment['gem_bc'], fragment['id']])
         # read 1
-        self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['status'], fragment['library_bc'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual']])]) + '\n')
+        self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['library_bc'], ("_").join([fragment['status'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual']])])]) + '\n')
         self.R1f.write(fragment['read1_seq'] + '\n')
         self.R1f.write('+\n')
         self.R1f.write(fragment['read1_qual'] + '\n')
         # read 2
-        self.R1f.write((' ').join([newid, (':').join(['2', 'N', '0', fragment['status'], fragment['library_bc'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual']])]) + '\n')
+        self.R1f.write((' ').join([newid, (':').join(['2', 'N', '0', fragment['library_bc'], ("_").join([fragment['status'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual']])])]) + '\n')
         self.R1f.write(fragment['read2_seq'] + '\n')
         self.R1f.write('+\n')
         self.R1f.write(fragment['read2_qual'] + '\n')
+        self.mcount += 1
 
     def writeRead(self, fragment):
         """

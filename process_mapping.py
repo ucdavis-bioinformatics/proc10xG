@@ -14,20 +14,10 @@ from subprocess import Popen
 from subprocess import PIPE
 
 
-#def seqToHash(seq):
-#    encoding = {'a': 0, 'c': 1, 'g': 2, 't': 3, 'A': 0, 'C': 1, 'G': 2, 'T': 3}
-#    result = 0
-#    i = 0
-#    while i < len(seq):
-#        result += encoding.get(seq[i]) * 4**i
-#        i += 1
-#    return result
-
-
 def sp_bwa_index(ref, overwrite=False):
     if os.path.isfile(ref):
         if os.path.isfile(ref + '.sa') and not overwrite:
-            sys.stderr.write('Found existing bwo index for %s\n' % ref)
+            sys.stderr.write('MAPPING\tNOTE\tFound existing bwo index for %s\n' % ref)
             return 0
         else:
             FNULL = open(os.devnull, 'w')
@@ -41,15 +31,15 @@ def sp_bwa_index(ref, overwrite=False):
                       preexec_fn=lambda: signal.signal(signal.SIGPIPE, signal.SIG_DFL))
             p.communicate()
             if p.returncode:
-                sys.stderr.write('Something in bwa index went wrong\n')
+                sys.stderr.write('MAPPING\tERROR\tSomething in bwa index went wrong\n')
                 raise
             # system call, check for return
-            sys.stderr.write('Successfully indexed %s\n' % ref)
+            sys.stderr.write('MAPPING\tNOTE\tSuccessfully indexed %s\n' % ref)
             return 0
     else:
-        sys.stderr.write("%s Reference file not found\n" % ref)
+        sys.stderr.write("MAPPING\tERROR\t%s Reference file not found\n" % ref)
         return 1
-    sys.stderr.write('Something in bwa index went wrong\n')
+    sys.stderr.write('MAPPING\tERROR\tSomething in bwa index went wrong\n')
     raise
 
 
@@ -130,7 +120,7 @@ class bcProcessing:
             if not self.isOpen:
                 try:
                     if self.open() == 1:
-                        sys.stderr.write('ERROR:[IlluminaFourReadOutput] ERROR Opening files for writing\n')
+                        sys.stderr.write('MAPPING\tERROR:[IlluminaFourReadOutput] ERROR Opening files for writing\n')
                         raise
                 except Exception:
                     raise
@@ -138,7 +128,7 @@ class bcProcessing:
                 self.R1f.write('\n'.join(self.R1) + '\n')
                 self.R4f.write('\n'.join(self.R2) + '\n')
             except Exception:
-                sys.stderr.write('ERROR:[IlluminaFourReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
+                sys.stderr.write('MAPPING\tERROR:[IlluminaFourReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
                 raise
             self.R1 = []
             self.R2 = []
@@ -296,7 +286,7 @@ class bcProcessing:
                                 PE2[ID] = line
 
         except (KeyboardInterrupt, SystemExit):
-            sys.stderr.write("%s unexpectedly terminated\n" % (__name__))
+            sys.stderr.write("MAPPING\tERROR\t%s unexpectedly terminated\n" % (__name__))
             return 1
         except:
             sys.stderr.write("".join(traceback.format_exception(*sys.exc_info())))
@@ -307,14 +297,6 @@ def main(insam, outsam, output_all, verbose):
     global file_path
     refDict = {}
     proc_bc = bcProcessing(verbose)
-
-    #gbcDict = {}
-    # Load the gem barcode dictionary with the whitelist
-    #with open(os.path.join(file_path, 'barcodes/4M-with-alts-february-2016.txt'), 'r') as f:
-    #    for bc_sequence in f:
-    #        gbcDict[seqToHash(bc_sequence.strip())] = bc_sequence.strip()
-    #    if verbose:
-    #        sys.stderr("Finished reading in barcode whitelist")
 
     line_count = 0
     current_bc = None
