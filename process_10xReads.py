@@ -140,7 +140,7 @@ class TwoReadIlluminaRun:
             for fread in read1:
                 self.fread1.extend(glob.glob(fread))
                 if len(self.fread1) == 0 or not all(os.path.isfile(f) for f in self.fread1):
-                    sys.stderr.write('ERROR:[TwoReadIlluminaRun] read1 file(s) not found\n')
+                    sys.stderr.write('PROCESS\tERROR:[TwoReadIlluminaRun] read1 file(s) not found\n')
                     raise Exception
             if read2 is None:
                 for fread in self.fread1:
@@ -149,10 +149,10 @@ class TwoReadIlluminaRun:
                 for fread in read2:
                     self.fread2.extend(glob.glob(fread))
                     if len(self.fread2) == 0 or not all(os.path.isfile(f) for f in self.fread2):
-                        sys.stderr.write('ERROR:[TwoReadIlluminaRun] read2 file not found\n')
+                        sys.stderr.write('PROCESS\tERROR:[TwoReadIlluminaRun] read2 file not found\n')
                         raise Exception
             if len(self.fread1) != len(self.fread2):
-                sys.stderr.write('ERROR:[TwoReadIlluminaRun] Inconsistent number of files for each read\n')
+                sys.stderr.write('PROCESS\tERROR:[TwoReadIlluminaRun] Inconsistent number of files for each read\n')
                 raise
         except Exception:
             raise
@@ -178,12 +178,12 @@ class TwoReadIlluminaRun:
                 else:
                     self.R2 = open(read2, 'r')
             except Exception:
-                sys.stderr.write('ERROR:[TwoReadIlluminaRun] cannot open input files\n')
+                sys.stderr.write('PROCESS\tERROR:[TwoReadIlluminaRun] cannot open input files\n')
                 raise
             self.isOpen = True
             self.numberoffiles -= 1
             if self.verbose:
-                sys.stderr.write("FILES\t%s,%s\n" % (read1, read2))
+                sys.stderr.write("PROCESS\tFILES\t%s,%s\n" % (read1, read2))
             return 0
         else:
             return 1
@@ -217,7 +217,7 @@ class TwoReadIlluminaRun:
         if not self.isOpen:
             try:
                 if self.open() == 1:
-                    sys.stderr.write('ERROR:[TwoReadIlluminaRun] ERROR Opening files for reading\n')
+                    sys.stderr.write('PROCESS\tERROR:[TwoReadIlluminaRun] ERROR Opening files for reading\n')
                     raise
             except Exception:
                 raise
@@ -275,14 +275,14 @@ class TwoReadIlluminaRun:
                 if self.numberoffiles > 0:
                     try:
                         if self.open() == 1:
-                            sys.stderr.write('ERROR:[TwoReadIlluminaRun] ERROR Opening files for reading\n')
+                            sys.stderr.write('PROCESS\tERROR:[TwoReadIlluminaRun] ERROR Opening files for reading\n')
                             raise
                     except Exception:
                         raise Exception
                     continue
                 raise StopIteration
             except Exception:
-                sys.stderr.write('ERROR:[TwoReadIlluminaRun] Error reading next read\n')
+                sys.stderr.write('PROCESS\tERROR:[TwoReadIlluminaRun] Error reading next read\n')
                 raise
             i += 1
         if len(reads) == 1:
@@ -311,7 +311,7 @@ class IlluminaTwoReadOutput:
             self.uncompressed = True
         elif self.uncompressed is True:
             if os.path.isfile(self.output_prefix + "_R1_001.fastq"):
-                sys.stderr.write('WARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
+                sys.stderr.write('PROCESS\tWARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
                 try:
                     if self.interleaved:
                         os.remove(self.output_prefix + "_R1_001.fastq")
@@ -319,11 +319,11 @@ class IlluminaTwoReadOutput:
                         os.remove(self.output_prefix + "_R1_001.fastq")
                         os.remove(self.output_prefix + "_R2_001.fastq")
                 except Exception:
-                    sys.stderr.write('WARNING:[IlluminaTwoReadOutput] Cannot delete file with prefix: %s\n' % self.output_prefix)
+                    sys.stderr.write('PROCESS\tWARNING:[IlluminaTwoReadOutput] Cannot delete file with prefix: %s\n' % self.output_prefix)
                     raise
         else:
             if os.path.isfile(self.output_prefix + "_R1_001.fastq.gz"):
-                sys.stderr.write('WARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
+                sys.stderr.write('PROCESS\tWARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
                 try:
                     if self.interleaved:
                         os.remove(self.output_prefix + "_R1_001.fastq.gz")
@@ -331,7 +331,7 @@ class IlluminaTwoReadOutput:
                         os.remove(self.output_prefix + "_R1_001.fastq.gz")
                         os.remove(self.output_prefix + "_R2_001.fastq.gz")
                 except Exception:
-                    sys.stderr.write('WARNING:[IlluminaTwoReadOutput] Cannot delete file with prefix: %s\n' % self.output_prefix)
+                    sys.stderr.write('PROCESS\tWARNING:[IlluminaTwoReadOutput] Cannot delete file with prefix: %s\n' % self.output_prefix)
                     raise
 
     def open(self):
@@ -355,7 +355,7 @@ class IlluminaTwoReadOutput:
                     if not self.interleaved:
                         self.R2f = sp_gzip_write(self.output_prefix + '_R2_001.fastq.gz')
         except Exception:
-            sys.stderr.write('ERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
+            sys.stderr.write('PROCESS\tERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
             raise
         self.isOpen = True
         return 0
@@ -371,7 +371,7 @@ class IlluminaTwoReadOutput:
         except Exception:
             raise
         self.isOpen = False
-        sys.stderr.write("FILES\tWrote %i reads to output\n" % self.mcount)
+        sys.stderr.write("PROCESS\tFILES\tWrote %i reads to output\n" % self.mcount)
 
     def count(self):
         """
@@ -416,7 +416,7 @@ class IlluminaTwoReadOutput:
             if not self.isOpen:
                 try:
                     if self.open() == 1:
-                        sys.stderr.write('ERROR:[IlluminaTwoReadOutput] ERROR Opening files for writing\n')
+                        sys.stderr.write('PROCESS\tERROR:[IlluminaTwoReadOutput] ERROR Opening files for writing\n')
                         raise
                 except Exception:
                     raise
@@ -426,7 +426,7 @@ class IlluminaTwoReadOutput:
                 else:
                     self.writePairedFastq(fragment)
             except Exception:
-                sys.stderr.write('ERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
+                sys.stderr.write('PROCESS\tERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
                 raise
 
 
@@ -455,7 +455,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
         for bc_sequence in f:
             gbcDict[seqToHash(bc_sequence.strip())] = bc_sequence.strip()
         if verbose:
-            sys.stderr.write("Finished reading in barcode whitelist\n")
+            sys.stderr.write("PROCESS\tNOTE\tFinished reading in barcode whitelist\n")
 
     try:
         while 1:
@@ -487,7 +487,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
             output.writeRead(fragment)
 
             if read_count % 250000 == 0 and verbose:
-                sys.stderr.write("READS\treads analyzed:%i|reads/sec:%i|barcodes:%i|median_reads/barcode:%.2f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
+                sys.stderr.write("PROCESS\tREADS\treads analyzed:%i|reads/sec:%i|barcodes:%i|median_reads/barcode:%.2f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
 
     except StopIteration:
         with open(output_dir + '_barcodes.txt', 'w') as f:
@@ -495,11 +495,11 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
         output.close()
 
         if verbose:
-            sys.stderr.write("READS\treads analyzed:%i|reads/sec:%i|barcodes:%i|reads/barcode:%f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
-            sys.stderr.write("BARCODE\tMATCH: %i (%.2f%%)\n" % (barcode_match, (float(barcode_match) / read_count) * 100))
-            sys.stderr.write("BARCODE\tMISMATCH1: %i (%.2f%%)\n" % (barcode_1mismatch, (float(barcode_1mismatch) / read_count) * 100))
-            sys.stderr.write("BARCODE\tAMBIGUOUS: %i (%.2f%%)\n" % (barcode_ambiguous, (float(barcode_ambiguous) / read_count) * 100))
-            sys.stderr.write("BARCODE\tUNKNOWN: %i (%.2f%%)\n" % (barcode_unknown, (float(barcode_unknown) / read_count) * 100))
+            sys.stderr.write("PROCESS\tREADS\treads analyzed:%i|reads/sec:%i|barcodes:%i|reads/barcode:%f\n" % (read_count, round(read_count / (time.time() - stime), 0), len(gbcCounter), median(gbcCounter.values())))
+            sys.stderr.write("PROCESS\tBARCODE\tMATCH: %i (%.2f%%)\n" % (barcode_match, (float(barcode_match) / read_count) * 100))
+            sys.stderr.write("PROCESS\tBARCODE\tMISMATCH1: %i (%.2f%%)\n" % (barcode_1mismatch, (float(barcode_1mismatch) / read_count) * 100))
+            sys.stderr.write("PROCESS\tBARCODE\tAMBIGUOUS: %i (%.2f%%)\n" % (barcode_ambiguous, (float(barcode_ambiguous) / read_count) * 100))
+            sys.stderr.write("PROCESS\tBARCODE\tUNKNOWN: %i (%.2f%%)\n" % (barcode_unknown, (float(barcode_unknown) / read_count) * 100))
         pass
 
 
@@ -559,11 +559,11 @@ interleaved = options.interleaved
 
 infile1 = options.read1
 if infile1 is None:
-    sys.stderr.write("Read file 1 is missing\n")
+    sys.stderr.write("PROCESS\tERROR\tRead file 1 is missing\n")
     sys.exit(1)
 infile2 = options.read2
 if infile2 is None:
-    sys.stderr.write("Read file 2 is missing\n")
+    sys.stderr.write("PROCESS\tERROR\tRead file 2 is missing\n")
     sys.exit(1)
 
 verbose = options.verbose
