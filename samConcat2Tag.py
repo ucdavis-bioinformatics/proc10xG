@@ -14,8 +14,8 @@ import argparse
 
 version_num = "0.0.1"
 parser = argparse.ArgumentParser(
-        description='samConcat2Tag, processes bwa mem sam format where the read comment has been appended to the mapping line following process_10xReads.py',
-        epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
+    description='samConcat2Tag, processes bwa mem sam format where the read comment has been appended to the mapping line following process_10xReads.py',
+    epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
 parser.add_argument('--version', action='version', version="%(prog)s version: " + version_num)
 
 # TODO: ADD parameter for sample ID
@@ -54,12 +54,21 @@ for line in insam:
         # get the final concatenatd tag
         tag = line2[-1]
         if (tag[0:6] in ['1:N:0:', '2:N:0:']):
-            tsplit = tag.split(":")
-            if len(tsplit) != 9:
-                sys.exit("sam file has concatenated info, but its the wrong size")
+            tsplit = tag.split(":", 4)
+            tsplit2 = tsplit.split("_")
+            if len(tsplit2) != 5:
+                sys.stderr.write("SAMCONCAT\tERROR\tsam file has concatenated info, but its the wrong size")
+                sys.exit(1)
             # fixed barcode
             line2 = line2[0:-1]
-            line2.extend(["ST:Z:" + tsplit[3], "BX:Z:" + line2[0].split(":")[0] + "-1", "BC:Z:" + tsplit[4], "QT:Z:" + '!' * len(tsplit[4]), "RX:Z:" + tsplit[5], "QX:Z:" + tsplit[6], "TR:Z:" + tsplit[7], "TQ:Z:" + tsplit[8]])
+            line2.extend(["ST:Z:" + tsplit2[0],
+                          "BX:Z:" + line2[0].split(":")[0] + "-1",
+                          "BC:Z:" + tsplit[3],
+                          "QT:Z:" + '!' * len(tsplit[3]),
+                          "RX:Z:" + tsplit2[1],
+                          "QX:Z:" + tsplit2[2],
+                          "TR:Z:" + tsplit2[3],
+                          "TQ:Z:" + tsplit2[4]])
             out.write('\t'.join(line2) + '\n')
         else:   # Does not contain a concatenated tag as expected by bwa mem
             out.write('\t'.join(line2) + '\n')

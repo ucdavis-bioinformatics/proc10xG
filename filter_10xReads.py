@@ -105,7 +105,7 @@ class TwoReadIlluminaRun:
                 for fread in read1:
                     self.fread1.extend(glob.glob(fread))
                     if len(self.fread1) == 0 or not all(os.path.isfile(f) for f in self.fread1):
-                        sys.stderr.write('ERROR:[TwoReadIlluminaRun] read1 file(s) not found\n')
+                        sys.stderr.write('FILTER\tERROR:[TwoReadIlluminaRun] read1 file(s) not found\n')
                         raise Exception
 
                 if read2 is None and not interleaved:
@@ -115,16 +115,16 @@ class TwoReadIlluminaRun:
                     for fread in read2:
                         self.fread2.extend(glob.glob(fread))
                         if len(self.fread2) == 0 or not all(os.path.isfile(f) for f in self.fread2):
-                            sys.stderr.write('ERROR:[TwoReadIlluminaRun] read2 file not found\n')
+                            sys.stderr.write('FILTER\tERROR:[TwoReadIlluminaRun] read2 file not found\n')
                             raise Exception
                 elif interleaved:
                     self.fread2 = None
                 else:
-                    sys.stderr.write('ERROR:[TwoReadIlluminaRun] An unknown state has occured\n')
+                    sys.stderr.write('FILTER\tERROR:[TwoReadIlluminaRun] An unknown state has occured\n')
                     raise Exception
 
                 if len(self.fread1) != len(self.fread2) and not interleaved:
-                    sys.stderr.write('ERROR:[TwoReadIlluminaRun] Inconsistent number of files for each read\n')
+                    sys.stderr.write('FILTER\tERROR:[TwoReadIlluminaRun] Inconsistent number of files for each read\n')
                     raise
         except Exception:
             raise
@@ -151,14 +151,14 @@ class TwoReadIlluminaRun:
                     else:
                         self.R2 = open(read2, 'r')
             except Exception:
-                sys.stderr.write('ERROR:[TwoReadIlluminaRun] cannot open input files\n')
+                sys.stderr.write('FILTER\tERROR:[TwoReadIlluminaRun] cannot open input files\n')
                 raise
             self.isOpen = True
             self.numberoffiles -= 1
             if self.verbose and not self.interleaved:
-                sys.stderr.write("FILES\t%s,%s\n" % (read1, read2))
+                sys.stderr.write("FILTER\tFILES\t%s,%s\n" % (read1, read2))
             if self.verbose and self.interleaved:
-                sys.stderr.write("FILES\t%s\n" % (read1))
+                sys.stderr.write("FILTER\tFILES\t%s\n" % (read1))
             return 0
         else:
             return 1
@@ -184,7 +184,7 @@ class TwoReadIlluminaRun:
         """
         return self.numberoffiles
 
-    def next(self, ncount=1):
+    def next_processed(self, ncount=1):
         """
         Extract and store the next [count] reads into a TwoSequenceReadSet object.
         If the file object is not open, or if 'next' reaches the end of a file, it will
@@ -193,7 +193,7 @@ class TwoReadIlluminaRun:
         if not self.isOpen:
             try:
                 if self.open() == 1:
-                    sys.stderr.write('ERROR:[TwoReadIlluminaRun] ERROR Opening files for reading\n')
+                    sys.stderr.write('FILTER\tERROR:[TwoReadIlluminaRun] ERROR Opening files for reading\n')
                     raise
             except Exception:
                 raise
@@ -236,14 +236,15 @@ class TwoReadIlluminaRun:
                 rid = (':').join(orid.split(':')[1:])
                 sgbc = orid.split(':')[0]
 
-                status = (id1.split()[1]).split(':')[3]
-                rbc = (id1.split()[1]).split(':')[4]
+                spart = id1.split()[1].split(":", 4)
+                rbc = spart[3]
                 if rbc == '':
                     rbc = "1"
-                gbc = (id1.split()[1]).split(':')[5]
-                gbcq = (id1.split()[1]).split(':')[6]
-                trim = (id1.split()[1]).split(':')[7]
-                trimq = (id1.split()[1]).split(':')[8]
+                status = spart[4].split('_')[0]
+                gbc = spart[4].split('_')[1]
+                gbcq = spart[4].split('_')[2]
+                trim = spart[4].split('_')[3]
+                trimq = spart[4].split('_')[4]
 
                 fragment = {'id': rid,
                             'status': status,
@@ -263,14 +264,14 @@ class TwoReadIlluminaRun:
                 if self.numberoffiles > 0:
                     try:
                         if self.open() == 1:
-                            sys.stderr.write('ERROR:[TwoReadIlluminaRun] ERROR Opening files for reading\n')
+                            sys.stderr.write('FILTER\tERROR:[TwoReadIlluminaRun] ERROR Opening files for reading\n')
                             raise
                     except Exception:
                         raise Exception
                     continue
                 raise StopIteration
             except Exception:
-                sys.stderr.write('ERROR:[TwoReadIlluminaRun] Error reading next read\n')
+                sys.stderr.write('FILTER\tERROR:[TwoReadIlluminaRun] Error reading next read\n')
                 raise
             i += 1
         if len(reads) == 1:
@@ -299,7 +300,7 @@ class IlluminaTwoReadOutput:
             self.uncompressed = True
         elif self.uncompressed is True:
             if os.path.isfile(self.output_prefix + "_R1_001.fastq"):
-                sys.stderr.write('WARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
+                sys.stderr.write('FILTER\tWARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
                 try:
                     if self.interleaved:
                         os.remove(self.output_prefix + "_R1_001.fastq")
@@ -307,11 +308,11 @@ class IlluminaTwoReadOutput:
                         os.remove(self.output_prefix + "_R1_001.fastq")
                         os.remove(self.output_prefix + "_R2_001.fastq")
                 except Exception:
-                    sys.stderr.write('WARNING:[IlluminaTwoReadOutput] Cannot delete file with prefix: %s\n' % self.output_prefix)
+                    sys.stderr.write('FILTER\tWARNING:[IlluminaTwoReadOutput] Cannot delete file with prefix: %s\n' % self.output_prefix)
                     raise
         else:
             if os.path.isfile(self.output_prefix + "_R1_001.fastq.gz"):
-                sys.stderr.write('WARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
+                sys.stderr.write('FILTER\tWARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
                 try:
                     if self.interleaved:
                         os.remove(self.output_prefix + "_R1_001.fastq.gz")
@@ -319,7 +320,7 @@ class IlluminaTwoReadOutput:
                         os.remove(self.output_prefix + "_R1_001.fastq.gz")
                         os.remove(self.output_prefix + "_R2_001.fastq.gz")
                 except Exception:
-                    sys.stderr.write('WARNING:[IlluminaTwoReadOutput] Cannot delete file with prefix: %s\n' % self.output_prefix)
+                    sys.stderr.write('FILTER\tWARNING:[IlluminaTwoReadOutput] Cannot delete file with prefix: %s\n' % self.output_prefix)
                     raise
 
     def open(self):
@@ -343,7 +344,7 @@ class IlluminaTwoReadOutput:
                     if not self.interleaved:
                         self.R2f = sp_gzip_write(self.output_prefix + '_R2_001.fastq.gz')
         except Exception:
-            sys.stderr.write('ERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
+            sys.stderr.write('FILTER\tERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
             raise
         self.isOpen = True
         return 0
@@ -359,7 +360,7 @@ class IlluminaTwoReadOutput:
         except Exception:
             raise
         self.isOpen = False
-        sys.stderr.write("FILES\tWrote %i reads to output\n" % self.mcount)
+        sys.stderr.write("FILTER\tFILES\tWrote %i reads to output\n" % self.mcount)
 
     def count(self):
         """
@@ -405,7 +406,7 @@ class IlluminaTwoReadOutput:
             if not self.isOpen:
                 try:
                     if self.open() == 1:
-                        sys.stderr.write('ERROR:[IlluminaTwoReadOutput] ERROR Opening files for writing\n')
+                        sys.stderr.write('FILTER\tERROR:[IlluminaTwoReadOutput] ERROR Opening files for writing\n')
                         raise
                 except Exception:
                     raise
@@ -417,7 +418,7 @@ class IlluminaTwoReadOutput:
             except IOError:
                 sys.exit(1)
             except Exception:
-                sys.stderr.write('ERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
+                sys.stderr.write('FILTER\tERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
                 raise
 
 
@@ -440,7 +441,8 @@ class Barcodes:
         try:
             f = open(self.file, 'r')
         except IOError:
-            sys.exit("Error: could not open file: %s" % self.file)
+            sys.stderr.write("FILTER\tERROR: could not open file: %s" % self.file)
+            sys.exit(1)
         else:
             with f:
                 for bc_line in f:
@@ -450,7 +452,8 @@ class Barcodes:
                     except ValueError:
                         self.gbcDict[seqToHash(bc_line.strip())] = 0
                     except Exception:
-                        sys.exit("Error: Unknown barcode file format")
+                        sys.stderr.write("FILTER\tERROR: Unknown barcode file format")
+                        sys.exit(1)
 
     def keep_barcode(self, barcode):
         bcHash = seqToHash(barcode)
@@ -493,11 +496,11 @@ def main(read1, read2, barcode_table, output_dir, status, interleaved_in, interl
                     output.writeRead(fragment)
 
             if read_count % 250000 == 0 and verbose:
-                sys.stderr.write("READS\treads analyzed:%i|reads/sec:%i|reads output:%i\n" % (read_count, round(read_count / (time.time() - stime), 0), read_output))
+                sys.stderr.write("FILTER\tREADS\treads analyzed:%i|reads/sec:%i|reads output:%i\n" % (read_count, round(read_count / (time.time() - stime), 0), read_output))
 
     except StopIteration:
         if verbose:
-            sys.stderr.write("READS\treads analyzed:%i|reads/sec:%i|reads output:%i\n" % (read_count, round(read_count / (time.time() - stime), 0), read_output))
+            sys.stderr.write("FILTER\tREADS\treads analyzed:%i|reads/sec:%i|reads output:%i\n" % (read_count, round(read_count / (time.time() - stime), 0), read_output))
         pass
 
 
@@ -584,11 +587,11 @@ if (options.bc_min is not None or options.bc_max is not None) and options.barcod
 if options.barcode_list is not None:
     bc_table = Barcodes(options.barcode_list)
     if verbose:
-        sys.stderr.write("Finished reading in barcode file\n")
+        sys.stderr.write("FILTER\tNOTE\tFinished reading in barcode file\n")
 elif options.barcode_file is not None:
     bc_table = Barcodes(options.barcode_file, options.bc_min, options.bc_max)
     if verbose:
-        sys.stderr.write("Finished reading in barcode list\n")
+        sys.stderr.write("FILTER\tNOTE\tFinished reading in barcode list\n")
 else:
     bc_table = None
 
