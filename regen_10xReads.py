@@ -482,21 +482,20 @@ parser = argparse.ArgumentParser(description='process_10xReads.py, to process ra
                                  epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + version_num, add_help=True)
 parser.add_argument('--version', action='version', version="%(prog)s version: " + version_num)
 
-parser.add_argument('-o', '--output', help="Directory + prefix to output reads, [default: %(default)s]",
-                    action="store", type=str, dest="output_dir", default="reads")
-
 parser.add_argument('-l', help="input is in interleaved format [default: %(default)s]",
                     action="store_true", dest="interleaved_in", default=False)
+
+parser.add_argument('--stdin', help="accept input on stdin (must be interleaved)",
+                    action="store_true", dest="stdin", default=False)
+
+parser.add_argument('-o', '--output', help="Directory + prefix to output reads, [default: %(default)s]",
+                    action="store", type=str, dest="output_dir", default="reads")
 
 parser.add_argument('-g', '--nogzip', help="do not gzip the output, ignored if output is stdout",
                     action="store_true", dest="nogzip", default=False)
 
 parser.add_argument('--quiet', help="turn off verbose output",
                     action="store_false", dest="verbose", default=True)
-
-parser.add_argument('--stdin', help="accept input on stdin (must be interleaved)",
-                    action="store_true", dest="stdin", default=False)
-
 
 group = parser.add_argument_group("Inputs", "Preprocessed 10x fastq files, and barcode to input")
 
