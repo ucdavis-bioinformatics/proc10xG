@@ -90,30 +90,34 @@ class TwoReadIlluminaRun:
         self.interleaved = interleaved
 
         try:
-            for fread in read1:
-                self.fread1.extend(glob.glob(fread))
-                if len(self.fread1) == 0 or not all(os.path.isfile(f) for f in self.fread1):
-                    sys.stderr.write('ERROR:[TwoReadIlluminaRun] read1 file(s) not found\n')
+	    if read1 is sys.stdin:
+                self.fread1.extend(read1)
+                self.interleaved = True
+            else:
+                for fread in read1:
+                    self.fread1.extend(glob.glob(fread))
+                    if len(self.fread1) == 0 or not all(os.path.isfile(f) for f in self.fread1):
+                        sys.stderr.write('ERROR:[TwoReadIlluminaRun] read1 file(s) not found\n')
+                        raise Exception
+
+                if read2 is None and not interleaved:
+                    for fread in self.fread1:
+                        self.fread2.append(infer_read_file_name(fread, "2"))
+                elif not interleaved:
+                    for fread in read2:
+                        self.fread2.extend(glob.glob(fread))
+                        if len(self.fread2) == 0 or not all(os.path.isfile(f) for f in self.fread2):
+                            sys.stderr.write('ERROR:[TwoReadIlluminaRun] read2 file not found\n')
+                            raise Exception
+                elif interleaved:
+                    self.fread2 = None
+                else:
+                    sys.stderr.write('ERROR:[TwoReadIlluminaRun] An unknown state has occured\n')
                     raise Exception
 
-            if read2 is None and not interleaved:
-                for fread in self.fread1:
-                    self.fread2.append(infer_read_file_name(fread, "2"))
-            elif not interleaved:
-                for fread in read2:
-                    self.fread2.extend(glob.glob(fread))
-                    if len(self.fread2) == 0 or not all(os.path.isfile(f) for f in self.fread2):
-                        sys.stderr.write('ERROR:[TwoReadIlluminaRun] read2 file not found\n')
-                        raise Exception
-            elif interleaved:
-                self.fread2 = None
-            else:
-                sys.stderr.write('ERROR:[TwoReadIlluminaRun] An unknown state has occured\n')
-                raise Exception
-
-            if len(self.fread1) != len(self.fread2) and not interleaved:
-                sys.stderr.write('ERROR:[TwoReadIlluminaRun] Inconsistent number of files for each read\n')
-                raise
+                if len(self.fread1) != len(self.fread2) and not interleaved:
+                    sys.stderr.write('ERROR:[TwoReadIlluminaRun] Inconsistent number of files for each read\n')
+                    raise
         except Exception:
             raise
         # record the number of files per read
@@ -291,7 +295,7 @@ class IlluminaTwoReadOutput:
             if os.path.isfile(self.output_prefix + "_R1_001.fastq"):
                 sys.stderr.write('WARNING:[IlluminaTwoReadOutput] File with prefix: %s exists, DELETING\n' % self.output_prefix)
                 try:
-                    if self.output_format is "interleaved" or self.output_prefix is "stdout":
+                    if self.output_format is "interleaved":
                         os.remove(self.output_prefix + "_R1_001.fastq")
                     else:
                         os.remove(self.output_prefix + "_R1_001.fastq")
@@ -332,13 +336,13 @@ class IlluminaTwoReadOutput:
                     self.R1f = open(self.output_prefix + '_R1_001.fastq', 'w')
                     if self.output_format is not "interleaved":
                         self.R2f = open(self.output_prefix + '_R2_001.fastq', 'w')
-                    if self.output_format is not "supernova":
+                    if self.output_format is "supernova":
                         self.I1f = open(self.output_prefix + '_I1_001.fastq', 'w')
                 else:
                     self.R1f = sp_gzip_write(self.output_prefix + '_R1_001.fastq.gz')
                     if self.output_format is not "interleaved":
                         self.R2f = sp_gzip_write(self.output_prefix + '_R2_001.fastq.gz')
-                    if self.output_format is not "supernova":
+                    if self.output_format is "supernova":
                         self.I1f = sp_gzip_write(self.output_prefix + '_I1_001.fastq.gz')
         except Exception:
             sys.stderr.write('ERROR:[IlluminaTwoReadOutput] Cannot write reads to file with prefix: %s\n' % self.output_prefix)
@@ -371,7 +375,7 @@ class IlluminaTwoReadOutput:
         newid = '@' + fragment['id']
         # read 1
         self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['library_bc']])]) + '\n')
-        self.R1f.write(fragment['sgem_bc'], fragment['trim_seq'], fragment['read1_seq'] + '\n')
+        self.R1f.write(fragment['sgem_bc'] + fragment['trim_seq'] + fragment['read1_seq'] + '\n')
         self.R1f.write('+\n')
         self.R1f.write(fragment['sgem_qual'] + fragment['trim_qual'] + fragment['read1_qual'] + '\n')
         # read 2
@@ -440,7 +444,7 @@ class IlluminaTwoReadOutput:
                 raise
 
 
-def main(read1, read2, barcode_table, output_dir, status, interleaved_in, output_format, nogzip, verbose):
+def main(read1, read2, output_dir, interleaved_in, output_format, nogzip, verbose):
     # Set up the global variables
     global read_count
     global read_output
@@ -479,7 +483,7 @@ parser = argparse.ArgumentParser(description='process_10xReads.py, to process ra
 parser.add_argument('--version', action='version', version="%(prog)s version: " + version_num)
 
 parser.add_argument('-o', '--output', help="Directory + prefix to output reads, [default: %(default)s]",
-                    action="store", type=str, dest="output_dir", default="stdout")
+                    action="store", type=str, dest="output_dir", default="reads")
 
 parser.add_argument('-l', help="input is in interleaved format [default: %(default)s]",
                     action="store_true", dest="interleaved_in", default=False)
@@ -490,11 +494,14 @@ parser.add_argument('-g', '--nogzip', help="do not gzip the output, ignored if o
 parser.add_argument('--quiet', help="turn off verbose output",
                     action="store_false", dest="verbose", default=True)
 
+parser.add_argument('--stdin', help="accept input on stdin (must be interleaved)",
+                    action="store_true", dest="stdin", default=False)
+
 
 group = parser.add_argument_group("Inputs", "Preprocessed 10x fastq files, and barcode to input")
 
 group.add_argument('-1', '--read1', metavar="read1", dest='read1', help='read1 of a pair (or interleaved format), first processed by process_10xReads, multiple files can be specified separated by comma',
-                   action='store', type=str, nargs='+')
+                   action='store', type=str, nargs='*')
 
 group.add_argument('-2', '--read2', metavar="read2", dest='read2', help='read2 of a pair, first processed by process_10xReads, multiple files can be specified separated by comma',
                    action='store', type=str, nargs='*')
@@ -504,15 +511,18 @@ options = parser.parse_args()
 output_dir = options.output_dir
 
 interleaved_in = options.interleaved_in
-interleaved_out = options.interleaved_out
 nogzip = options.nogzip
 
 infile1 = options.read1
-if infile1 is None:
+if infile1 is None and not options.stdin:
     sys.exit("Read file 1 is missing")
 infile2 = options.read2
-if infile2 is None and not interleaved_in:
+if infile2 is None and not interleaved_in and not options.stdin:
     sys.exit("Read file 2 is missing")
+
+if options.stdin:
+    infile1 = sys.stdin
+    interleaved_in = True
 
 verbose = options.verbose
 
