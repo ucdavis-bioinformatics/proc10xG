@@ -133,7 +133,9 @@ class TwoReadIlluminaRun:
         if self.numberoffiles > 0:
             try:
                 read1 = self.fread1.pop()
-                if read1.split(".")[-1] == "gz":
+                if read1 is sys.stdin:
+                    pass
+                elif read1.split(".")[-1] == "gz":
                     self.R1 = sp_gzip_read(read1)
                 else:
                     self.R1 = open(read1, 'r')
