@@ -208,7 +208,7 @@ class TwoReadIlluminaRun:
         """
         return self.numberoffiles
 
-    def next(self, ncount=1):
+    def next_raw(self, ncount=1):
         """
         Extract and store the next [count] reads into a TwoSequenceReadSet object.
         If the file object is not open, or if 'next' reaches the end of a file, it will
@@ -459,7 +459,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
 
     try:
         while 1:
-            fragment = iterator.next()
+            fragment = iterator.next_raw()
             read_count += 1
             if seqToHash(fragment['gem_bc']) in gbcDict:  # barcode matches whitelist
                 gbcCounter[seqToHash(fragment['gem_bc'])] += 1
