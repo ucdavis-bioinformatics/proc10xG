@@ -462,7 +462,7 @@ def main(read1, read2, output_dir, output_all, interleaved, profile, bctrim, tri
         while 1:
             fragment = iterator.next_raw()
             read_count += 1
-            if seqToHash(fragment['gem_bc']) in gbcDict:  # barcode matches whitelist
+            if 'N' not in fragment['gem_bc'] and seqToHash(fragment['gem_bc'] ) in gbcDict:  # barcode matches whitelist
                 gbcCounter[seqToHash(fragment['gem_bc'])] += 1
                 barcode_match += 1
                 fragment['status'] = "MATCH"
