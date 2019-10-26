@@ -15,7 +15,7 @@ config = \
         'keywords': ["Bioinformatics", "DNA Sequencing", "10X Genomics"],
         'classifiers': [
             "Programming Language :: Python",
-            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.6",
             "Development Status :: 3 - Alpha",
             "Intended Audience :: Science/Research",
             "License :: OSI Approved :: Apache Software License",

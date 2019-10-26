@@ -10,18 +10,21 @@ def median(lst):
 '''
 Gzip utilities, run gzip in a subprocess
 '''
-
+# unversal_newlines is being used here for backwards compatability to
+# python 3.6
 def sp_gzip_read(file,bufsize=-1):
     p = subprocess.Popen(["gzip", "--decompress", "--to-stdout", file],
                          stdout=subprocess.PIPE,
                          stderr=None,
                          bufsize=bufsize,
-                         text=True)
+                         universal_newlines=True)
     if p.returncode:
         raise
     return p.stdout
 
 
+# unversal_newlines is being used here for backwards compatability to
+# python 3.6
 def sp_gzip_write(file, bufsize=-1):
     filep = open(file, 'w')
     p = subprocess.Popen('gzip',
@@ -29,7 +32,7 @@ def sp_gzip_write(file, bufsize=-1):
                          stdout=filep,
                          shell=True,
                          bufsize=bufsize,
-                         text=True)
+                         universal_newlines=True)
     return p.stdin
 
 
