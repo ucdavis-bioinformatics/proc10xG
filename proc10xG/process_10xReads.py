@@ -149,3 +149,10 @@ def process_10xReads_EXE(read1, read2, output_dir, interleaved, nogzip, whitelis
     except Exception:
         sys.stderr.write("".join(traceback.format_exception(*sys.exc_info())))
         sys.exit("ERROR[process_10xReads]\tAn unknown fatal error was encountered.\n")
+
+def main():
+    process_10xReads_ARGS()
+    sys.exit(0)
+
+if __name__ == '__main__':
+    main()
