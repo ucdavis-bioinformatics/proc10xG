@@ -80,7 +80,7 @@ def process_10xReads_ARGS():
     if os.path.isfile(options.whitelist):
         whitelist = options.whitelist
     elif os.path.isfile(os.path.join(file_path, '../data/barcodes/' + options.whitelist)):
-        whitelist = os.path.isfile(os.path.join(file_path, '../data/barcodes/' + options.whitelist))
+        whitelist = os.path.join(file_path, '../data/barcodes/' + options.whitelist)
     else:
         sys.stderr.write("ERROR[process_10xReads]\tBarcode whitelist file not accessible.\n")
         sys.exit(1)
@@ -103,8 +103,11 @@ def process_10xReads_EXE(read1, read2, output_dir, interleaved, nogzip, whitelis
 
     stime = time.time()
 
+    output_list = ["MATCH", "MISMATCH1"]
+    if output_all:
+        output_list.extend(["AMBIGUOUS", "UNKNOWN"])
     # open output files
-    output = TwoRead10xLLOutput(output_dir, nogzip, interleaved, verbose)
+    output = TwoRead10xLLOutput(output_dir, nogzip, interleaved, output_list, verbose)
 
     # Process read inputs:
     iterator = TwoRead10xLLRun(read1, read2, bctrim, trim, verbose)
@@ -114,34 +117,33 @@ def process_10xReads_EXE(read1, read2, output_dir, interleaved, nogzip, whitelis
 
     try:
         while 1:
-            fragment = iterator.next_raw(250000, whitelistDB)
-            output.writeRead(fragment)
+            fragment = iterator.next_raw(whitelistDB, 250000)
+            if len(fragment) == 0:
+                    break
+            output.writeProcessedRead(fragment)
             if verbose:
-                sys.stderr.write("PROCESS\tREADS\treads analyzed:{}|reads/sec:{:0.f}|barcodes:{}|median_reads/barcode:{:0.2f}\n".fragment(
+                sys.stderr.write("PROCESS\tREADS\treads analyzed:{}|reads/sec:{:.0f}|barcodes:{}|median_reads/barcode:{:.2f}\n".format(
                                  iterator.count(),
                                  iterator.count() / (time.time() - stime),
-                                 get_gbcCounter_size,
-                                 median(list(get_gbcCounter_items))))
-
-    except StopIteration:
+                                 whitelistDB.get_gbcCounter_size(),
+                                 median(list(whitelistDB.get_gbcCounter_items()))))
         whitelistDB.print_gbcCounter(output_dir)
         output.close()
 
         if verbose:
-            sys.stderr.write("PROCESS\tREADS\treads analyzed:{}|reads/sec:{:.0f}|barcodes:{}|median_reads/barcode:{:.2f}\n".fragment(
+            sys.stderr.write("PROCESS\tREADS\treads analyzed:{}|reads/sec:{:.0f}|barcodes:{}|median_reads/barcode:{:.2f}\n".format(
                              iterator.count(),
                              iterator.count() / (time.time() - stime),
-                             get_gbcCounter_size,
-                             median(list(get_gbcCounter_items))))
+                             whitelistDB.get_gbcCounter_size(),
+                             median(list(whitelistDB.get_gbcCounter_items()))))
             sys.stderr.write("PROCESS\tBARCODE\tMATCH: {} ({:.2f}%%)\n".format(
-                             whitelistDB.statusCounter["MATCH"], float(whitelistDB.statusCounter["MATCH"]) / iterator.count() * 100))
+                             whitelistDB.statusCounter["MATCH"], (float(whitelistDB.statusCounter["MATCH"]) / iterator.count()) * 100))
             sys.stderr.write("PROCESS\tBARCODE\tMISMATCH1: {} ({:.2f}%%)\n".format(
-                             whitelistDB.statusCounter["MISMATCH1"], float(whitelistDB.statusCounter["MISMATCH1"]) / iterator.count()) * 100))
+                             whitelistDB.statusCounter["MISMATCH1"], (float(whitelistDB.statusCounter["MISMATCH1"]) / iterator.count()) * 100))
             sys.stderr.write("PROCESS\tBARCODE\tAMBIGUOUS: {} ({:.2f}%%)\n".format(
-                             whitelistDB.statusCounter["AMBIGUOUS"], float(whitelistDB.statusCounter["AMBIGUOUS"]) / iterator.count()) * 100))
+                             whitelistDB.statusCounter["AMBIGUOUS"], (float(whitelistDB.statusCounter["AMBIGUOUS"]) / iterator.count()) * 100))
             sys.stderr.write("PROCESS\tBARCODE\tUNKNOWN: {} ({:.2f}%%)\n".format(
-                             whitelistDB.statusCounter["UNKNOWN"]), float(whitelistDB.statusCounter["UNKNOWN"]) / iterator.count()) * 100))
-        pass
+                             whitelistDB.statusCounter["UNKNOWN"], (float(whitelistDB.statusCounter["UNKNOWN"]) / iterator.count()) * 100))
     except (KeyboardInterrupt, SystemExit):
         sys.exit("ERROR[process_10xReads]\t{} unexpectedly terminated\n".format(__name__))
     except Exception:

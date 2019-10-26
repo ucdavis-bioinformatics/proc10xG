@@ -48,8 +48,8 @@ class barcodes_10xG:
             raise
         self.wl_size = len(self._gbcDict)
         if self.verbose:
-            sys.stderr.write(("PROCESS\tNOTE\tFinished reading in {0} barcodes" +
-                             " from whitelist.\n").format(self.wl_size))
+            sys.stderr.write(("PROCESS\tWHITELIST\tFinished reading in {} barcodes" +
+                             " from whitelist {}.\n").format(self.wl_size, self.whitelist))
 
     def __checkHammingOne(self, sequence):
         res = []
@@ -101,8 +101,8 @@ class barcodes_10xG:
         Function to print to file the barcode counter information
         """
         try:
-            with open(filename, 'w') as f:
+            with open(filename + "_barcodes.txt", 'w') as f:
                 [f.write('{0}\t{1}\t{2}\n'.format(key[0], key[1], value)) for key, value in self._gbcCounter.items()]
-         except EnvironmentError:
+        except Exception:
             sys.stderr.write('ERROR[barcodes_10xG]\tError writing in barcode counter')
             raise

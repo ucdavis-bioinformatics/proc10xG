@@ -11,13 +11,12 @@ def median(lst):
 Gzip utilities, run gzip in a subprocess
 '''
 
-def sp_gzip_read(file,bufsize):
+def sp_gzip_read(file,bufsize=-1):
     p = subprocess.Popen(["gzip", "--decompress", "--to-stdout", file],
                          stdout=subprocess.PIPE,
                          stderr=None,
                          bufsize=bufsize,
-                         text=True,
-                         preexec_fn=lambda: signal.signal(signal.SIGPIPE, signal.SIG_DFL))
+                         text=True)
     if p.returncode:
         raise
     return p.stdout
@@ -29,7 +28,8 @@ def sp_gzip_write(file, bufsize=-1):
                          stdin=subprocess.PIPE,
                          stdout=filep,
                          shell=True,
-                         bufsize=bufsize)
+                         bufsize=bufsize,
+                         text=True)
     return p.stdin
 
 

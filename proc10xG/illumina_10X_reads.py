@@ -4,6 +4,8 @@ import os
 import glob
 
 from .misc import sp_gzip_read
+from .misc import sp_gzip_write
+from .misc import make_sure_path_exists
 
 class TwoRead10xLLRun:
     """
@@ -65,7 +67,7 @@ class TwoRead10xLLRun:
             self.isOpen = True
             self.numberoffiles -= 1
             if self.verbose:
-                sys.stderr.write("PROCESS\tFILES\t{0},{1}\n".format(read1, read2))
+                sys.stderr.write("PROCESS\tNOTE\tProcessing files {0}, {1}\n".format(read1, read2))
             return 0
         else:
             return 1
@@ -163,9 +165,9 @@ class TwoRead10xLLRun:
                             sys.stderr.write('ERROR[TwoRead10xLLRun]\terror opening files for reading\n')
                             raise
                     except Exception:
-                        raise Exception
+                        raise
                     continue
-                raise StopIteration
+                break
             except Exception:
                 sys.stderr.write('ERROR[TwoRead10xLLRun]\terror reading next read\n')
                 raise
@@ -177,7 +179,7 @@ class TwoRead10xLLOutput:
     """
     Given output_prefix filename and reads, output them to paired files (possibly gzipped)
     """
-    def __init__(self, output_prefix, uncompressed=False, interleaved=False, verbose=True):
+    def __init__(self, output_prefix, uncompressed=False, interleaved=False, output_list =[], verbose=True):
         """
         Initialize an TwoRead10xOutput object with output_prefix and whether or not
         output should be compressed with gzip [uncompressed True/False]
@@ -186,6 +188,7 @@ class TwoRead10xLLOutput:
         self.output_prefix = output_prefix
         self.interleaved = interleaved
         self.uncompressed = uncompressed
+        self.output_list = output_list
         self.mcount = 0
         self.verbose = True
 
@@ -195,7 +198,7 @@ class TwoRead10xLLOutput:
         elif self.uncompressed is True:
             if os.path.isfile(self.output_prefix + "_R1_001.fastq"):
                 if self.verbose:
-                    sys.stderr.write('PROCESS\tWARNING[TwoRead10xLLOutput]\tFile with prefix: {0} exists, DELETING\n'.format(self.output_prefix + "_R1_001.fastq"))
+                    sys.stderr.write('PROCESS\tWARNING\tFile with prefix: {0} exists, DELETING\n'.format(self.output_prefix + "_R1_001.fastq"))
                 try:
                     if self.interleaved:
                         os.remove(self.output_prefix + "_R1_001.fastq")
@@ -208,7 +211,7 @@ class TwoRead10xLLOutput:
         else:
             if os.path.isfile(self.output_prefix + "_R1_001.fastq.gz"):
                 if self.verbose:
-                    sys.stderr.write('PROCESS\tWARNING[TwoRead10xLLOutput]\tFile with prefix: {0} exists, DELETING\n'.format(self.output_prefix + "_R1_001.fastq"))
+                    sys.stderr.write('PROCESS\tWARNING\tFile with prefix: {0} exists, DELETING\n'.format(self.output_prefix + "_R1_001.fastq"))
                 try:
                     if self.interleaved:
                         os.remove(self.output_prefix + "_R1_001.fastq.gz")
@@ -267,7 +270,7 @@ class TwoRead10xLLOutput:
         return self.mcount
 
     def writeProcessedPairedFastq(self, fragment):
-        newid = '@' + (':').join([fragment['gem_bc'], fragment['id'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual'], fragment['status']])
+        newid = '@' + (':').join([str(fragment['gem_bc']), fragment['id'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual'], fragment['status']])
         # read 1
         self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['library_bc']])]) + '\n')
         self.R1f.write(fragment['read1_seq'] + '\n')
@@ -281,7 +284,7 @@ class TwoRead10xLLOutput:
         self.mcount += 1
 
     def writeProcessedFastqInterleaved(self, fragment):
-        newid = '@' + (':').join([fragment['gem_bc'], fragment['id'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual'], fragment['status']])
+        newid = '@' + (':').join([str(fragment['gem_bc']), fragment['id'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual'], fragment['status']])
         # read 1
         self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['library_bc']])]) + '\n')
         self.R1f.write(fragment['read1_seq'] + '\n')
@@ -309,10 +312,11 @@ class TwoRead10xLLOutput:
                     raise
             try:
                 for frag in fragments:
-                    if self.interleaved:
-                        self.writeProcessedFastqInterleaved(frag)
-                    else:
-                        self.writeProcessedPairedFastq(frag)
+                    if frag['status'] in self.output_list:
+                        if self.interleaved:
+                            self.writeProcessedFastqInterleaved(frag)
+                        else:
+                            self.writeProcessedPairedFastq(frag)
             except Exception:
                 sys.stderr.write('ERROR[TwoRead10xLLOutput]\tCannot write reads to file with prefix: {0}\n'.format(self.output_prefix))
                 raise
