@@ -1,9 +1,11 @@
-# proc10xG set of python scripts
+# proc10xG module and processing scripts
 
-A series of python scripts to process data generated using the 10x genomics DNA system. scripts are designed to extract and trim the reads of gem barcode information and primer sequence respectively. Compare the gem barcodes to a whitelist (allowing for 1 mismatch) and annotating the read as having a barcode which MATCHES a barcode int the whitelist, contains MISMATCH1, is AMBIGUOUS (with 1 edit distance, matches multiple whitelisted barcodes), or UNKNOWN does not match any whitelisted barcodes at edit distance 1.
+A series of python scripts to process data generated using the 10x Genomics Chromium system. Scripts are designed to extract and trim the reads of gem barcode information and other sequences (primer/UMI). Processing includes code to compare the observed read gem barcodes to a whitelist (allowing for 1 mismatch) and annotating the read as having a barcode which MATCHES a barcode in the whitelist, is a match with MISMATCH1, is AMBIGUOUS (edit distance of 1, matches multiple whitelisted barcodes), or UNKNOWN does not match any whitelisted barcodes at edit distance 1.
 
-Scripts ready for use
-* process_10xReads.py - process fastq files generated from bcl2fastq, longranger mkfastq, or supernova mkfastq
+## Available scripts for 10x Genomics Chromium linked reads system (DNA)
+Scripts ready for use to process linked reads.
+
+* process_10xReads.py - process fastq files generated from bcl2fastq, longranger mkfastq, or supernova mkfastq, removes gem barcode sequence and primer, checks whitelist and annotates reads id with result.
 * samConcat2Tag.py - extract the FASTA/FASTQ comment appended to SAM output from bwa mem -C and generates 10x genomics sam tags
 * filter_10xReads.py - Filters 10x fastq file (processed with process_10xReads.py) by barcode status and/or barcode reads depth or barcode list. (Plan to also support sam/bam input/output)
 * regen_10xReads.py - Returns reads fastq file (processed with process_10xReads.py) to 'original' for suitable for input into longranger or supernova (eg after filtering). (Plan to also support sam input)
@@ -12,77 +14,95 @@ Scripts in progress, not ready for use
 * profile_mapping.py - profile the gem barcode alignments
 * process_mapping.py - map + remap ambiguous alignment using gem barcode to identify correct placement
 
-## proc10xGenomics.py, process raw 10x genomic reads (fastq files)
+### proc10xGenomics.py, process raw 10x genomic reads (fastq files)
 
 process fastq files generated from bcl2fastq, longranger mkfastq, or supernova mkfastq.
 1. extract gem barcode (default: first 16bp of read one), from both sequence and quality
 1. trim primer from read (default: next 7bp of read one), from both sequence and quality
 1. compare extracted barcode sequence to the whitelist of barcodes, whitelist is expected
-	to be in directory barcodes, relative the python script.
+	to be in directory data/barcodes, relative the python script/module. Available whitelist files are:
+	*	4M-with-alts-february-2016.txt
+	*	737K-april-2014_rc.txt
+	*	737K-august-2016.txt
 1. label read status as
 	1. MATCH - perfect match to a whitelist barcode
 	1. MISMATCH1 - edit distance of 1 away from a whitelist barcode
 	1. AMBIGUOUS - edit distance of 1 away from multiple whitelisted barcodes
 	1. UNKNOWN - greater than an edit distance of 1 away from a whitelist barcode
-1. annotate reads by appending status, barcode and trimmed sequence to read ID and output
+1. annotate reads by appending status, whitelisted gem barcode (or None), barcode and trimmed sequence and quality to read ID and output
 
-### Usage
-	usage: process_10xReads.py [-h] [--version] [-o OUTPUT_DIR] [-a] [-i]
-	                           [-b BCTRIM] [-t TRIM] [-g] [--quiet]
-	                           [-1 read1 [read1 ...]] [-2 read2 [read2 ...]]
+#### Usage
+usage: process_10xReads [-h] [--version] [--quiet] [-1 read1 [read1 ...]]
+                        [-2 read2 [read2 ...]] [-o OUTPUT_DIR] [-g] [-i]
+                        [-b BCTRIM] [-t TRIM] [-a] [-w WHITELIST]
 
-	process_10xReads.py, to process raw fastq files extracting gem barcodes and
-	comparing to a white list
+process_10xReads, to process raw fastq files extracting gem barcodes and
+comparing to a white list
 
-	optional arguments:
-	  -h, --help            show this help message and exit
-	  --version             show program's version number and exit
-	  -o OUTPUT_DIR, --output OUTPUT_DIR
-	                        Directory + prefix to output reads, [default: stdout]
-	  -a, --all             output all reads, not just those with valid gem
-	                        barcode, STATUS will be UNKNOWN, or AMBIGUOUS
-	                        [default: False]
-	  -i                    output in interleaved format, if -o stdout,
-	                        interleaved will be chosen automatically [default:
-	                        False]
-	  -b BCTRIM, --bctrim BCTRIM
-	                        trim gem barcode [default: 16]
-	  -t TRIM, --trim TRIM  trim additional bases after the gem barcode [default: 7]
-	  -g, --nogzip          do not gzip the output, ignored if output is stdout
-	  --quiet               turn off verbose output
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  --quiet               turn off verbose output
 
-	Inputs:
-	  10x fastq files to input
+Inputs:
+  10x fastq files to input (can be gz).
 
-	  -1 read1 [read1 ...], --read1 read1 [read1 ...]
-	                        read1 of a pair, multiple files can be specified
-	                        separated by comma
-	  -2 read2 [read2 ...], --read2 read2 [read2 ...]
-	                        read2 of a pair, multiple files can be specified
-	                        separated by comma
+  -1 read1 [read1 ...], --read1 read1 [read1 ...]
+                        read1 of a pair, multiple files can be specified
+                        separated by comma
+  -2 read2 [read2 ...], --read2 read2 [read2 ...]
+                        read2 of a pair, multiple files can be specified
+                        separated by comma
 
-	For questions or comments, please contact Matt Settles <settles@ucdavis.edu>
-	process_10xReads.py version: 0.0.2
+Output:
+  10x fastq files to output options.
+
+  -o OUTPUT_DIR, --output OUTPUT_DIR
+                        Directory + prefix to output reads, [default: stdout]
+  -g, --nogzip          do not gzip the output, ignored if output is stdout
+  -i                    output in interleaved format, if -o stdout,
+                        interleaved will be chosen automatically [default:
+                        False]
+
+Application:
+  Application specific options.
+
+  -b BCTRIM, --bctrim BCTRIM
+                        trim gem barcode [default: 16]
+  -t TRIM, --trim TRIM  trim additional primer bases after the gem barcode
+                        [default: 7]
+  -a, --all             output all reads, not just those with valid gem
+                        barcode, STATUS will be UNKNOWN, or AMBIGUOUS
+                        [default: False]
+  -w WHITELIST, --whitelist WHITELIST
+                        gem barcode whitelist file to use [default: 4M-with-
+                        alts-february-2016.txt]
+
+For questions or comments, please contact Matt Settles <settles@ucdavis.edu>
+process_10xReads version: 0.1.0
 
 ### Output
 Reads are output, where the read ID line is annotated with what was extracted in the form:
 
-WHITELIST.GEM.BC:ORIGINAL.READID 1:N:0:LIBRARY.BC:STATUS_GEM.BC_GEM.BC.QUAL_TRIM.SEQ_TRIM.SEQ.QL
+WHITELIST.GEM.BC:ORIGINAL.READID^GEM.BC_GEM.BC.QUAL_TRIM.SEQ_TRIM.SEQ.QL_STATUS 1:N:0:LIBRARY.BC
 
-Note: 10x barcode status code, gem sequence/qual and trimmed seq/qual are delimited with a _ rather than : because quality values contain : character.
+Note: the gem sequence/qual, trimmed seq/qual and 10x barcode status code are delimited with a _ rather than : because quality values can contain : character. The originaal read ID and extact read information are separated by a '^'
 
-reads can be output as fastq read1 and fastq read 2 in standard format file, or in interleaved format where read 2 follows read 1 in a single file, this facilitates streaming.
+reads can be output as fastq read1 and fastq read 2 in paired read format file, or in interleaved format where read 2 follows read 1 in a single file, this facilitates streaming.
 
 #### additional output to standard error, when verbose is on
 When verbose option is turned on (default),
 
+When white list file has been read in
+PROCESS	WHITELIST	Finished reading in X barcodes from whitelist FILE
+
 Upon opening a file  
-PROCESS FILES	reads1_filename	read2_filenames
+PROCESS	NOTE	Processing files reads1_filename, read2_filenames
 
 Upon completion of writing to a file  
 PROCESS FILES	Wrote N reads to output
 
-after every 250,000 reads and the final read the following is printed to stdout  
+after every 250,000 read batch and after the final read the following is printed to stdout  
 PROCESS READS	reads analyzed:X|reads/sec:X|barcodes:X|median_reads/barcode:X
 
 detailing the applications progress
@@ -97,19 +117,23 @@ These lines can be grepped out of a stdout file, or straight from the output str
 
 #### whitelisted barcode count
 
-A whitelisted barcode counts file is produced ([output]_barcodes.txt) containing two columns, the barcode sequence and the number of reads assigned to that barcode. Only barcodes found in the whitelist are output
+A whitelisted barcode counts file is produced ([output]_barcodes.txt) containing three columns, the observed barcode sequence, the whitelisted gem barcode sequence (None not found [UNKNOWN] or ambiguous [AMBIGUOUS]) and the number of reads assigned to that observed barcode.
 
 example:  
-TGTACGAGTCGGCTAC	3  
-CAACCAAGTTACCGAT	1  
-CGAAGCCAGAGGGAAT	1  
-TCACGCTCACACTCGG	2  
-TCGCGTTTCCAGTACA	3  
-TATCTACAGTCGTTTG	1  
-CTTAATCAGCCATAAA	1  
-TTGCCGTGTTAGTGGG	2  
+'''
+ATCCGGGAGAAGGGTA	ATCCGGGAGAAGGGTA	1
+CTAGTGAGTTAGAACA	CTAGTGAGTTAGAACA	1
+TACTTCACAGGCGATA	TACTTCACAGGCGATA	1
+CTGCGTTGTACACGCC	CTGCGTTGTACACGCC	1
+ATGCCATGATGCTAAT	None	1
+CTGCGTTGTGATACCT	CTGCGTTGTGATACCT	1
+GTCCAAACATGTTTCT	GTCCAAACATGTTTCT	1
+CTGCCTACAGTCGCCA	CTGCCTACAGTCGCCA	1
+CCTAACCTCAAGCTGT	CCTAACCTCAAGCTGT	1
+'''
 
-## samConcat2Tag.py, turn gem barcode and trimmed seq to tags
+
+###	samConcat2Tag.py, turn gem barcode and trimmed seq to tags
 
 Process a sam formatted file generated from bwa mem after preprocessing reads with proc10xgenomics.py.
 bwa mem with the -C option appends the read comment to the end of the sam mapping line, this is not in

@@ -27,7 +27,7 @@ def process_10xReads_ARGS():
     generate parser
     """
     p10xR_parser = argparse.ArgumentParser(
-            description='process_10xReads.py, to process raw fastq files extracting gem barcodes and comparing to a white list',
+            description='process_10xReads, to process raw fastq files extracting gem barcodes and comparing to a white list',
             epilog='For questions or comments, please contact Matt Settles <settles@ucdavis.edu>\n%(prog)s version: ' + process_10xReads_version_num, add_help=True)
     p10xR_parser.add_argument('--version', action='version', version="%(prog)s version: " + process_10xReads_version_num)
 
@@ -58,7 +58,7 @@ def process_10xReads_ARGS():
     p10xR_group3.add_argument('-b', '--bctrim', help='trim gem barcode [default: %(default)s]',
                         type=int, dest="bctrim", default=16)
 
-    p10xR_group3.add_argument('-t', '--trim', help="trim addional primer bases after the gem barcode [default: %(default)s]",
+    p10xR_group3.add_argument('-t', '--trim', help="trim additional primer bases after the gem barcode [default: %(default)s]",
                         type=int, dest="trim", default=7)
 
     p10xR_group3.add_argument('-a', '--all', help="output all reads, not just those with valid gem barcode, STATUS will be UNKNOWN, or AMBIGUOUS [default: %(default)s]",

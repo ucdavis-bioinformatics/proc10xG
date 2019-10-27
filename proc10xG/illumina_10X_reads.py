@@ -270,7 +270,8 @@ class TwoRead10xLLOutput:
         return self.mcount
 
     def writeProcessedPairedFastq(self, fragment):
-        newid = '@' + (':').join([str(fragment['gem_bc']), fragment['id'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual'], fragment['status']])
+        newid = '@' + ('^').join([(':').join([str(fragment['gem_bc']), fragment['id']]),
+                            ('_').join([fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual'], fragment['status']])])
         # read 1
         self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['library_bc']])]) + '\n')
         self.R1f.write(fragment['read1_seq'] + '\n')
@@ -284,7 +285,8 @@ class TwoRead10xLLOutput:
         self.mcount += 1
 
     def writeProcessedFastqInterleaved(self, fragment):
-        newid = '@' + (':').join([str(fragment['gem_bc']), fragment['id'], fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual'], fragment['status']])
+        newid = '@' + ('^').join([(':').join([str(fragment['gem_bc']), fragment['id']]),
+                            ('_').join([fragment['sgem_bc'], fragment['sgem_qual'], fragment['trim_seq'], fragment['trim_qual'], fragment['status']])])
         # read 1
         self.R1f.write((' ').join([newid, (':').join(['1', 'N', '0', fragment['library_bc']])]) + '\n')
         self.R1f.write(fragment['read1_seq'] + '\n')
